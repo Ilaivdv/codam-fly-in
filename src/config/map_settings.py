@@ -37,9 +37,9 @@ class MapSelector(BaseModel):
             original_settings = termios.tcgetattr(sys.stdin)
             try:
                 _ = tty.setraw(sys.stdin.fileno())
-                key: str = sys.stdin.read(1)  # Read first byte
-                if key == '\x1b':  # Escape sequence (special key)
-                    # Read next two bytes (e.g., '[A' for Up)
+                key: str = sys.stdin.read(1)
+                if key == '\x1b':  # Escape sequence start
+                    # Read next two bytes to get escape sequence
                     key += sys.stdin.read(2)
                     # Map sequences to key names
                     key_map = {
@@ -59,7 +59,7 @@ class MapSelector(BaseModel):
             print("\033c -- Press Q to quit\n")
             for i, option in enumerate(self._map_options):
                 if i == selected:
-                    print(Back.WHITE, option, Style.RESET_ALL)
+                    print(Back.WHITE, Fore.BLACK, option, Style.RESET_ALL)
                     continue
                 print(option)
 
