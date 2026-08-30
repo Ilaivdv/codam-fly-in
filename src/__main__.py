@@ -1,8 +1,10 @@
 from .config import Config
 
+
 def main() -> None:
-    cfg = Config(map_path="hi")
-    print(cfg.get_map_path())
+    cfg = Config()
+    print(cfg)
+
 
 if __name__ == "__main__":
     main()
