@@ -1,8 +1,7 @@
 from pydantic import BaseModel, PrivateAttr, ConfigDict
+from .map_settings import MapSelector, MapError
 from argparse import Namespace, ArgumentParser
 from typing import Any
-from .map_settings import MapSelector, MapError
-import os
 
 
 class ConfigError(Exception):
@@ -20,7 +19,7 @@ class Config(BaseModel):
         self.args = self._register_arguments()
         self._map_path = self.args.map_path
         try:
-            print(self._map_selector.get_options(self._map_path))
+            self._map_selector.option_select(self._map_path)
         except MapError as e:
             print(e)
 
