@@ -10,19 +10,16 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-subclassing-any
 
 run: install
-	uv run python -m src
+	@uv run --quiet python -m src
 
 help:
-	uv run python -m src -h
-
-visual:
-	uv run python -m src -v
+	@uv run --quiet python -m src -h
 
 debug: install
 	uv run python -m pdb -m src
 
 install:
-	uv sync
+	@uv sync
 
 lint:
 	-@$(FLAKE8)
