@@ -3,7 +3,7 @@ from .config import Config
 
 def main() -> None:
     cfg = Config()
-    print(cfg)
+    cfg.args
 
 
 if __name__ == "__main__":
