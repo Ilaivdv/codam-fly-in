@@ -11,15 +11,13 @@ class ConfigError(Exception):
 
 class Config(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    _map_path: str = PrivateAttr()
     _map_selector: MapSelector = PrivateAttr(MapSelector())
     args: Namespace | None = None
 
     def model_post_init(self, _: Any, /) -> None:
         self.args = self._register_arguments()
-        self._map_path = self.args.map_path
         try:
-            self._map_selector.option_select(self._map_path)
+            self._map_selector.option_select(self.args.map_path)
         except MapError as e:
             print(e)
 
