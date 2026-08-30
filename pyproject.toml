@@ -8,6 +8,7 @@ dependencies = [
 		"pygame>=2.6.0",
     "pydantic>=2.13.4",
 		"colorama>=0.4.6",
+		"types-colorama>=0.4.15.2",
     "flake8>=7.3.0",
     "mypy>=1.19.1",
 ]
