@@ -5,6 +5,7 @@ description = "Fly in project for the 42 core curriculum"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "pydantic>=2.13.4",
     "flake8>=7.3.0",
     "mypy>=1.19.1",
 ]
