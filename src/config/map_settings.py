@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PrivateAttr, Field
+from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
 from typing import Any
 import termios
@@ -21,38 +21,58 @@ class MapValidator(BaseModel):
        })
     _map: dict[str, int | dict[str, Any]] = {}
 
+    def raise_map_error(self, msg: str, line_count: int = 0) -> None:
+        raise MapError(f"{Fore.RED}Error" + (f" at line {line_count}" if
+                                             line_count else '') +
+                       f"{Fore.RESET}: {msg}")
+
     def validate_map(self, path: str) -> None:
-        nb_drones: int = Field(gt=0)
+        if not os.path.lexists(path):
+            self.raise_map_error(f"{path} is not a valid map path")
+
+        def get_nb_drones(config_line: str, line_count: int) -> bool:
+            if config_line.split(':', 1)[0].strip() == "nb_drones" and \
+                    not self._map.get("nb_drones"):
+                try:
+                    self._map["nb_drones"] = int(
+                            config_line.split(':', 1)[1].strip())
+                except (ValueError, IndexError) as e:
+                    self.raise_map_error(e.__str__(), line_count)
+
+            return True
 
         with open(path) as f:
             lines: list[str] = f.readlines()
-            has_nb: bool = False
 
             for line_count, line in enumerate(lines):
-                if line.startswith('#') or not len(line.strip()):
+                if line.strip().startswith('#') or not len(line.strip()):
                     continue
-                elif line.startswith("nb_drones"):
-                    nb_drones = int(line.split(':', 1)[1].strip())
-                    self._map["nb_drones"] = nb_drones
-                    has_nb = True
-                    continue
-                elif not has_nb:
-                    raise MapError((f"at line {line_count}: file must start"
-                                    "with key 'nb_drones' with a positive "
-                                    "integer value"))
+
+                get_nb_drones(line, line_count) # TODO Check for first line
+                # elif line.split(':', 1)[0].strip() == "nb_drones" and \
+                #         not self._map.get("nb_drones"):
+                #     try:
+                #         self._map["nb_drones"] = int(
+                #                 line.split(':', 1)[1].strip())
+                #         continue
+                #     except (ValueError, IndexError) as e:
+                #         self.raise_map_error(e.__str__(), line_count)
+                # elif not self._map.get("nb_drones"):
+                #     self.raise_map_error(("file must start with key 'nb_drones' "
+                #                     "with an integer greater than 0"),
+                #                     line_count)
+
                 if line.split(':')[0] in self._keys:
                     key: str = line.split(':')[0].strip()
                     match key:
                         case key if key == "start_hub" or key == "end_hub":
-                            if self._map.get(key) != None:
+                            if self._map.get(key) is not None:
                                 raise MapError((f"at line {line_count}: "
                                                 f"duplicate key '{key}'"))
                             self._map[key] = 0
                         case _:
                             pass
-                else:
-                    raise MapError((f"at line {line_count}: invalid key "
-                                    f"'{line.split(':')[0]}'"))
+
 
 
 class MapSelector(BaseModel):
