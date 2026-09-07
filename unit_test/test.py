@@ -1,8 +1,16 @@
 import pytest
 from src.config.map_settings import MapValidator, MapError
 
-def test_level_txt():
+def test_invalid() -> None:
     map = MapValidator()
-    # assert map.validate_map("unit_test/test0.txt")
+
     with pytest.raises(MapError) as excinfo:
-        map.validate_map("unit_test/test0.txt")
+        map.validate_map("fake_directory/a.tx")
+
+    with pytest.raises(MapError) as excinfo:
+        map.validate_map("unit_test/invalid0.txt")
+
+def test_valid() -> None:
+    map = MapValidator()
+
+    assert map.validate_map("unit_test/maps/valid0.txt") is None
