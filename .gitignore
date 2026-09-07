@@ -3,3 +3,4 @@
 .venv/
 maps/
 **.txt
+!unit_test/*.txt

@@ -5,10 +5,18 @@ description = "Fly in project for the 42 core curriculum"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-		"pygame>=2.6.0",
+	"pygame>=2.6.0",
     "pydantic>=2.13.4",
-		"colorama>=0.4.6",
-		"types-colorama>=0.4.15.2",
-    "flake8>=7.3.0",
-    "mypy>=1.19.1",
+	"colorama>=0.4.6",
+	"types-colorama>=0.4.15.2",
 ]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

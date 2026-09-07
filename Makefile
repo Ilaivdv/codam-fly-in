@@ -10,13 +10,16 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-subclassing-any
 
 run: install
-	@uv run --quiet python -m src
+	@uv run --quiet $(PY) -m src
+
+test:
+	@uv run pytest unit_test/*.py
 
 help:
-	@uv run --quiet python -m src -h
+	@uv run --quiet $(PY) -m src -h
 
 debug: install
-	uv run python -m pdb -m src
+	uv run $(PY) -m pdb -m src
 
 install:
 	@uv sync
