@@ -22,29 +22,32 @@ class MapValidator(BaseModel):
                        f"{Fore.RESET}: {msg}")
 
     def validate_map(self, path: str) -> None:
-        allowed_keys: set[str] = {"start_hub", "hub", "end_hub", "connection"}
+        valid_zones: set[str] = {"start_hub", "hub", "end_hub", "connection"}
+        valid_metadata: set[str] = {""}
 
         if not os.path.exists(path):
             self.raise_map_error(f"{path} is not a valid map path")
+        elif not os.access(path, os.R_OK):
+            self.raise_map_error(f"no permission to read file at path {path}")
 
         with open(path) as f:
             lines = f.readlines()
-            keys: list[tuple[str, int]] = (
+            zones: list[tuple[str, int]] = (
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
 
-            if not re.fullmatch(r"^nb_drones\s*:\s*\d+$", keys[0][0]):
+            if not re.fullmatch(r"^nb_drones\s*:\s*\d+$", zones[0][0]):
                 self.raise_map_error("key 'nb_drones' is missing or incorrect",
-                                     keys[0][1])
+                                     zones[0][1])
             else:
-                self._map["nb_drones"] = int(keys.pop(0)[0].split(':', 1)[1])
-            for line, line_count in keys:
+                self._map["nb_drones"] = int(zones.pop(0)[0].split(':', 1)[1])
+            for line, line_count in zones:
                 curr_key = re.fullmatch(
-                        (rf"^(?<zone>{'|'.join(allowed_keys)})\s*:\s*"
-                         r"(?<name>\b[^\W-]+\b)\s*"
-                         r"(?<coords>\d+\s*\d+)\s*$"),
+                        (rf"^(?P<zone>{'|'.join(valid_zones)})\s*:\s*"
+                         r"(?P<name>\b[^\W-]+\b)\s*"
+                         r"(?P<coords>\d+\s*\d+)\s*"),
                         line)
-                if curr_key:
+                if not curr_key:
                     self.raise_map_error("incorrect formatting", line_count)
 
 
