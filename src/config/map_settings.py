@@ -40,6 +40,13 @@ class MapValidator(BaseModel):
         elif not os.access(path, os.R_OK):
             self.raise_map_error(f"no permission to read file at path {path}")
 
+        def get_valid_connection(connection: str, names: list[str]) -> bool:
+            match = re.fullmatch((r"^connection\s*:\s*"
+                                  rf"(?P<n1>\b({'|'.join(names)})\b)-"
+                                  rf"(?P<n2>\b({'|'.join(names)})$"),
+                                 connection)
+            return True
+
         with open(path) as f:
             lines = f.readlines()
             zone_names: list[str] = []
@@ -52,13 +59,18 @@ class MapValidator(BaseModel):
                                      zones[0][1])
             else:
                 self._map["nb_drones"] = int(zones.pop(0)[0].split(':', 1)[1])
+
             for line, line_count in zones:
-                curr_key = re.match(
+                curr_key = re.fullmatch(
                         (rf"^(?P<zone>{'|'.join(valid_zones)})\s*:\s*"
                          r"(?P<name>\b[^\W-]+\b)\s*"
-                         r"(?P<coords>-?\d+\s*-?\d+)\s*"),
+                         r"(?P<coords>-?\d+\s*-?\d+)\s*"
+                         rf"(?P<metadata>\[({'|'.join(
+                             valid_metadata)})=.*\])*$"),
                         line)
                 if not curr_key:
+                    if get_valid_connection(curr_key, zone_names):
+                        continue
                     self.raise_map_error("incorrect formatting", line_count)
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
