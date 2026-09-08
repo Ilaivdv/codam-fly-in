@@ -22,8 +22,18 @@ class MapValidator(BaseModel):
                        f"{Fore.RESET}: {msg}")
 
     def validate_map(self, path: str) -> None:
-        valid_zones: set[str] = {"start_hub", "hub", "end_hub", "connection"}
-        valid_metadata: set[str] = {""}
+        valid_zones: set[str] = {
+                "start_hub",
+                "hub",
+                "end_hub",
+                "connection"
+                }
+        valid_metadata: set[str] = {
+                "color",
+                "zone",
+                "max_drones",
+                "max_link_capacity"
+                }
 
         if not os.path.exists(path):
             self.raise_map_error(f"{path} is not a valid map path")
@@ -32,6 +42,7 @@ class MapValidator(BaseModel):
 
         with open(path) as f:
             lines = f.readlines()
+            zone_names: list[str] = []
             zones: list[tuple[str, int]] = (
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
@@ -42,13 +53,17 @@ class MapValidator(BaseModel):
             else:
                 self._map["nb_drones"] = int(zones.pop(0)[0].split(':', 1)[1])
             for line, line_count in zones:
-                curr_key = re.fullmatch(
+                curr_key = re.match(
                         (rf"^(?P<zone>{'|'.join(valid_zones)})\s*:\s*"
                          r"(?P<name>\b[^\W-]+\b)\s*"
-                         r"(?P<coords>\d+\s*\d+)\s*"),
+                         r"(?P<coords>-?\d+\s*-?\d+)\s*"),
                         line)
                 if not curr_key:
                     self.raise_map_error("incorrect formatting", line_count)
+                elif curr_key.group("name") in zone_names:
+                    self.raise_map_error("found duplicate name", line_count)
+                else:
+                    zone_names.append(curr_key.group("name"))
 
 
 class MapSelector(BaseModel):
