@@ -5,6 +5,7 @@ import termios
 import tty
 import sys
 import os
+import re
 
 
 class MapError(Exception):
@@ -13,66 +14,38 @@ class MapError(Exception):
 
 
 class MapValidator(BaseModel):
-    _keys: set[str] = PrivateAttr({
-        "start_hub",
-        "end_hub",
-        "hub",
-        "connection",
-       })
     _map: dict[str, int | dict[str, Any]] = {}
 
     def raise_map_error(self, msg: str, line_count: int = 0) -> None:
-        raise MapError(f"{Fore.RED}Error" + (f" at line {line_count}" if
-                                             line_count else '') +
+        raise MapError(f"\n{Fore.RED}Error" + (f" at line {line_count}" if
+                                               line_count else '') +
                        f"{Fore.RESET}: {msg}")
 
     def validate_map(self, path: str) -> None:
-        if not os.path.lexists(path):
+        allowed_keys: set[str] = {"start_hub", "hub", "end_hub", "connection"}
+
+        if not os.path.exists(path):
             self.raise_map_error(f"{path} is not a valid map path")
 
-        def get_nb_drones(config_line: str, line_count: int) -> bool:
-            if config_line.split(':', 1)[0].strip() == "nb_drones" and \
-                    not self._map.get("nb_drones"):
-                try:
-                    self._map["nb_drones"] = int(
-                            config_line.split(':', 1)[1].strip())
-                except (ValueError, IndexError) as e:
-                    self.raise_map_error(e.__str__(), line_count)
-
-            return True
-
         with open(path) as f:
-            lines: list[str] = f.readlines()
+            lines = f.readlines()
+            keys: list[tuple[str, int]] = (
+                    [(i.strip(), lines.index(i) + 1) for i in lines if
+                     not i.startswith('#') and i.strip() != ''])
 
-            for line_count, line in enumerate(lines):
-                if line.strip().startswith('#') or not len(line.strip()):
-                    continue
-
-                get_nb_drones(line, line_count) # TODO Check for first line
-                # elif line.split(':', 1)[0].strip() == "nb_drones" and \
-                #         not self._map.get("nb_drones"):
-                #     try:
-                #         self._map["nb_drones"] = int(
-                #                 line.split(':', 1)[1].strip())
-                #         continue
-                #     except (ValueError, IndexError) as e:
-                #         self.raise_map_error(e.__str__(), line_count)
-                # elif not self._map.get("nb_drones"):
-                #     self.raise_map_error(("file must start with key 'nb_drones' "
-                #                     "with an integer greater than 0"),
-                #                     line_count)
-
-                if line.split(':')[0] in self._keys:
-                    key: str = line.split(':')[0].strip()
-                    match key:
-                        case key if key == "start_hub" or key == "end_hub":
-                            if self._map.get(key) is not None:
-                                raise MapError((f"at line {line_count}: "
-                                                f"duplicate key '{key}'"))
-                            self._map[key] = 0
-                        case _:
-                            pass
-
+            if not re.fullmatch(r"^nb_drones\s*:\s*\d+$", keys[0][0]):
+                self.raise_map_error("key 'nb_drones' is missing or incorrect",
+                                     keys[0][1])
+            else:
+                self._map["nb_drones"] = int(keys.pop(0)[0].split(':', 1)[1])
+            for line, line_count in keys:
+                curr_key = re.fullmatch(
+                        (rf"^(?<zone>{'|'.join(allowed_keys)})\s*:\s*"
+                         r"(?<name>\b[^\W-]+\b)\s*"
+                         r"(?<coords>\d+\s*\d+)\s*$"),
+                        line)
+                if curr_key:
+                    self.raise_map_error("incorrect formatting", line_count)
 
 
 class MapSelector(BaseModel):
@@ -83,7 +56,7 @@ class MapSelector(BaseModel):
         path += '/' if not path.endswith('/') else ''
         res: list[str] = []
 
-        if not os.path.isdir(path) and not os.path.lexists(path):
+        if not os.path.isdir(path) and not os.path.exists(path):
             raise MapError(f"{path} is not a valid map directory")
         for i in os.listdir(path):
             i = path + i
@@ -106,7 +79,6 @@ class MapSelector(BaseModel):
                 if key == '\x1b':  # Escape sequence start
                     # Read next two bytes to get escape sequence
                     key += sys.stdin.read(2)
-                    # Map sequences to key names
                     key_map = {
                         '\x1b[A': 'up',
                         '\x1b[B': 'down',
