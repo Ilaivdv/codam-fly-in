@@ -22,7 +22,7 @@ class MapValidator(BaseModel):
                                                line_count else '') +
                        f"{Fore.RESET}: {msg}")
 
-    def validate_map(self, path: str) -> None:
+    def validate_map(self, path: str) -> Map:
         valid_zones: set[str] = {
                 "start_hub",
                 "hub",
@@ -41,7 +41,8 @@ class MapValidator(BaseModel):
         elif not os.access(path, os.R_OK):
             self.raise_map_error(f"no permission to read file at path {path}")
 
-        def validate_connection(connection: str, names: list[str]) -> bool:
+        def validate_connection(connection: str, names: list[str],
+                                line_count: int) -> bool:
             match = re.fullmatch((r"^connection\s*:\s+"
                                   rf"(?P<n1>\b({'|'.join(names)})\b)-"
                                   rf"(?P<n2>\b({'|'.join(names)})\b)"
@@ -50,18 +51,29 @@ class MapValidator(BaseModel):
                                  connection)
             if not match:
                 return False
-            else:
+            else:  # Check for duplicate connections before appending
                 if not self._map.zones.get(match.group("n1"))\
                         or not self._map.zones.get(match.group("n2")):
-                    self.raise_map_error("found undefined connection(s)")
+                    self.raise_map_error("found undefined connection(s)",
+                                         line_count)
 
                 elif self._map.zones[match.group("n1")]\
                         in self._map.zones[match.group("n2")].connections\
                         or match.group("n1") == match.group("n2"):
-                    self.raise_map_error("found duplicate connection")
+                    self.raise_map_error("found duplicate connection",
+                                         line_count)
+                try:
+                    self._map.zones[match.group("n1")].connections.append(
+                            (self._map.zones[match.group("n2")],
+                            (int(match.group("metadata").split(
+                                '=', 1)[1].removesuffix(']')) if
+                             match.group("metadata") else -1)))
+                except ValueError as e:
+                    self.raise_map_error(e, line_count)
+                print(self._map.zones[match.group("n1")].connections)
+            return True
 
-                self._map.zones[match.group("n1")].connections.append(
-                        self._map.zones[match.group("n2")])
+        def validate_metadata(metadata: str) -> bool:
             return True
 
         with open(path) as f:
@@ -71,6 +83,8 @@ class MapValidator(BaseModel):
             zones: list[tuple[str, int]] = (
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
+            if not len(zones):
+                self.raise_map_error("file does not contain a map")
 
             # Check if first option is nb_drones
             if not re.fullmatch(r"^nb_drones\s*:\s+\d+$", zones[0][0]):
@@ -90,7 +104,7 @@ class MapValidator(BaseModel):
                         line)
                 if not curr_key:
                     # If not zone, check for connection
-                    if validate_connection(line, zone_names):
+                    if validate_connection(line, zone_names, line_count):
                         continue
                     self.raise_map_error("incorrect formatting", line_count)
                 elif curr_key.group("name") in zone_names:
@@ -100,6 +114,7 @@ class MapValidator(BaseModel):
                                            curr_key.group("coords"))
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
+        return self._map
 
 
 class MapSelector(BaseModel):
@@ -124,7 +139,7 @@ class MapSelector(BaseModel):
                 res.append(i + '/')
         self._map_options = res
 
-    def option_select(self, path: str) -> None:
+    def option_select(self, path: str) -> Map | None:
         self._get_options(path)
 
         def read_key() -> str:
@@ -162,15 +177,15 @@ class MapSelector(BaseModel):
                     print("\033c")
                     return
                 case '\r' | "right":
+                    # If it's a file, return the validated map
                     if self._map_options[selected].endswith(".txt"):
-                        self._map_validator.validate_map(
-                                self._map_options[selected])
+                        return self._map_validator.validate_map(
+                                    self._map_options[selected])
                     else:
-                        self.option_select(self._map_options[selected])
-                    return
+                        return self.option_select(self._map_options[selected])
                 case "left":
-                    self.option_select(self._map_options[0].rsplit('/', 2)[0])
-                    return
+                    # Go back a directory
+                    return self.option_select(self._map_options[0].rsplit('/', 2)[0])
                 case "down":
                     if selected < len(self._map_options) - 1:
                         selected += 1

@@ -23,7 +23,7 @@ class Map:
 class Zone:
     def __init__(self, type: ZoneType, coords: tuple[int, int]) -> None:
         self.type: ZoneType = type
-        self.connections: list[Zone] = []
-        self.rule: ZoneRule = ZoneRule.NORMAL
+        self.connections: list[tuple[Zone, int]] = []
         self.coords: tuple[int, int]
+        self.rule: ZoneRule = ZoneRule.NORMAL
         self.color: str = "" #TODO Find a way to cleanly implement colors
