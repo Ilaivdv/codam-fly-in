@@ -27,3 +27,4 @@ class Zone:
         self.coords: tuple[int, ...] = coords
         self.rule: ZoneRule = ZoneRule.NORMAL
         self.color: str = ""  # TODO Find a way to cleanly implement colors
+        self.max_drones: int = -1

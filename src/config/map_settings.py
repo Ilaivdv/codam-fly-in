@@ -1,6 +1,6 @@
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
-from src import Map, Zone
+from src import Map, Zone, ZoneType, ZoneRule
 import termios
 import tty
 import sys
@@ -22,19 +22,8 @@ class MapValidator(BaseModel):
                        f"{Fore.RESET}: {msg}")
 
     def validate_map(self, path: str) -> Map:
-        valid_zones: set[str] = {
-                "start_hub",
-                "hub",
-                "end_hub",
-                "connection"
-                }
-        # valid_zones: list[str] = [i.value for i in ZoneType]
-        valid_metadata: set[str] = {
-                "color",
-                "zone",
-                "max_drones",
-                "max_link_capacity"
-                }
+        valid_zones: list[str] = [i.value for i in ZoneType]
+        valid_metadata: list[str] = ["color", "zone", "max_drones"]
 
         if not os.path.exists(path):
             self.raise_map_error(f"{path} is not a valid map path")
@@ -73,8 +62,29 @@ class MapValidator(BaseModel):
                     self.raise_map_error(e.__str__(), line_count)
             return True
 
-        def validate_metadata(metadata: str) -> bool:
-            return True
+        def validate_metadata(metadata: list[str], current_zone: str,
+                              line_count: int) -> None:
+            zone_rules: list[str] = [i.value for i in ZoneRule]
+            check_duplicate: list[str] = []
+
+            for i in metadata:
+                key, value = i.replace(' ', '').split('=', 1)
+                print(key, value)
+                if key not in valid_metadata:
+                    self.raise_map_error("found invalid metadata", line_count)
+                elif key in check_duplicate:
+                    self.raise_map_error("found duplicate metadata value",
+                                         line_count)
+                match key:
+                    case "color":
+                        ...  # TODO Find a way to cleanly implement colors
+                    case "max_drones":
+                        self._map.zones[current_zone].max_drones = int(value)
+                    case "zone":
+                        ...
+                    case _:
+                        self.raise_map_error("invalid metadata", line_count)
+                check_duplicate.append(key)
 
         with open(path) as f:
             lines = f.readlines()
@@ -110,14 +120,17 @@ class MapValidator(BaseModel):
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
                 else:
-                    # coords: tuple[int, ...] = tuple(
-                    #         int(i) for i in curr_key.group("zone").split(
-                    #             ' ', 1))
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(curr_key.group("zone"),
                                            tuple(map(int, coords)))
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
+                    if not curr_key.group("metadata"):
+                        continue
+                    validate_metadata(
+                            curr_key.group("metadata")[1:-1].strip().split(
+                                ' ', 1),
+                            curr_key.group("name"), line_count)
         return self._map
 
 
@@ -186,7 +199,10 @@ class MapSelector(BaseModel):
                         return self._map_validator.validate_map(
                                     self._map_options[selected])
                     else:
-                        return self.option_select(self._map_options[selected])
+                        for i in os.listdir(self._map_options[selected]):
+                            if i.endswith(".txt"):
+                                return self.option_select(
+                                        self._map_options[selected])
                 case "left":
                     # Go back a directory
                     return self.option_select(self._map_options[0].rsplit(
