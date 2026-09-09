@@ -1,6 +1,5 @@
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
-from collections import defaultdict
 from src import Zone, Map
 import termios
 import tty
@@ -58,7 +57,8 @@ class MapValidator(BaseModel):
                                          line_count)
 
                 elif self._map.zones[match.group("n1")]\
-                        in self._map.zones[match.group("n2")].connections\
+                        in [i[0] for i in self._map.zones[
+                            match.group("n2")].connections]\
                         or match.group("n1") == match.group("n2"):
                     self.raise_map_error("found duplicate connection",
                                          line_count)
@@ -70,7 +70,7 @@ class MapValidator(BaseModel):
                              match.group("metadata") else -1)))
                 except ValueError as e:
                     self.raise_map_error(e, line_count)
-                print(self._map.zones[match.group("n1")].connections)
+                print(match.group("n1"), self._map.zones[match.group("n1")].connections)
             return True
 
         def validate_metadata(metadata: str) -> bool:
