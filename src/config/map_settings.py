@@ -15,7 +15,7 @@ class MapError(Exception):
 
 
 class MapValidator(BaseModel):
-    _map: dict[str, dict[str, Any]] = {}
+    _map: dict[str, dict[str, Any] | int] = {}
     _connections: dict[str, list[str]] = defaultdict(list)
 
     def raise_map_error(self, msg: str, line_count: int = 0) -> None:
@@ -50,7 +50,8 @@ class MapValidator(BaseModel):
             if not match:
                 return False
             else:
-                if match.group("n1") in self._connections[match.group("n2")]:
+                if match.group("n1") in self._connections[match.group("n2")]\
+                        or match.group("n1") == match.group("n2"):
                     self.raise_map_error("found duplicate connection")
                 self._connections[match.group("n1")].append(match.group("n2"))
             return True
@@ -58,16 +59,19 @@ class MapValidator(BaseModel):
         with open(path) as f:
             lines = f.readlines()
             zone_names: list[str] = []
+            # Remove all blank/commented lines
             zones: list[tuple[str, int]] = (
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
 
+            # Check if first option is nb_drones
             if not re.fullmatch(r"^nb_drones\s*:\s+\d+$", zones[0][0]):
                 self.raise_map_error("key 'nb_drones' is missing or incorrect",
                                      zones[0][1])
             else:
                 self._map["nb_drones"] = int(zones.pop(0)[0].split(':', 1)[1])
 
+            # Parse through zone configuration
             for line, line_count in zones:
                 curr_key = re.fullmatch(
                         (rf"^(?P<zone>{'|'.join(valid_zones)})\s*:\s+"
@@ -77,6 +81,7 @@ class MapValidator(BaseModel):
                              valid_metadata)})=.+\])*$"),
                         line)
                 if not curr_key:
+                    # If not zone, check for connection
                     if validate_connection(line, zone_names):
                         continue
                     self.raise_map_error("incorrect formatting", line_count)
@@ -136,12 +141,12 @@ class MapSelector(BaseModel):
             print("\033c -- Press Q to quit\n")
             for i, option in enumerate(self._map_options):
                 if i == selected:
-                    print(Back.WHITE, Fore.BLACK, option, Style.RESET_ALL)
+                    print(Back.WHITE, Fore.BLACK, option, Style.RESET_ALL,
+                          sep='')
                     continue
                 print(option)
 
-            key_pressed = read_key()
-            match key_pressed:
+            match read_key():
                 case 'q':
                     print("\033c")
                     return
