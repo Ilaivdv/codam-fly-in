@@ -1,6 +1,6 @@
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
-from src import Zone, Map
+from src import Map, Zone, ZoneType
 import termios
 import tty
 import sys
@@ -28,6 +28,7 @@ class MapValidator(BaseModel):
                 "end_hub",
                 "connection"
                 }
+        # valid_zones: list[str] = [i.value for i in ZoneType]
         valid_metadata: set[str] = {
                 "color",
                 "zone",
@@ -65,12 +66,11 @@ class MapValidator(BaseModel):
                 try:
                     self._map.zones[match.group("n1")].connections.append(
                             (self._map.zones[match.group("n2")],
-                            (int(match.group("metadata").split(
+                             (int(match.group("metadata").split(
                                 '=', 1)[1].removesuffix(']')) if
                              match.group("metadata") else -1)))
                 except ValueError as e:
-                    self.raise_map_error(e, line_count)
-                print(match.group("n1"), self._map.zones[match.group("n1")].connections)
+                    self.raise_map_error(e.__str__(), line_count)
             return True
 
         def validate_metadata(metadata: str) -> bool:
@@ -110,10 +110,15 @@ class MapValidator(BaseModel):
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
                 else:
+                    # coords: tuple[int, ...] = tuple(
+                    #         int(i) for i in curr_key.group("zone").split(
+                    #             ' ', 1))
+                    coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(curr_key.group("zone"),
-                                           curr_key.group("coords"))
+                                           tuple(map(int, coords)))
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
+        print([i.__dict__ for i in self._map.zones.values()])
         return self._map
 
 
@@ -175,7 +180,7 @@ class MapSelector(BaseModel):
             match read_key():
                 case 'q':
                     print("\033c")
-                    return
+                    return None
                 case '\r' | "right":
                     # If it's a file, return the validated map
                     if self._map_options[selected].endswith(".txt"):
@@ -185,7 +190,8 @@ class MapSelector(BaseModel):
                         return self.option_select(self._map_options[selected])
                 case "left":
                     # Go back a directory
-                    return self.option_select(self._map_options[0].rsplit('/', 2)[0])
+                    return self.option_select(self._map_options[0].rsplit(
+                        '/', 2)[0])
                 case "down":
                     if selected < len(self._map_options) - 1:
                         selected += 1

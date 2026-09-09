@@ -4,7 +4,7 @@ from enum import StrEnum
 class ZoneType(StrEnum):
     START = "start_hub"
     HUB = "hub"
-    END = "end"
+    END = "end_hub"
 
 
 class ZoneRule(StrEnum):
@@ -21,9 +21,9 @@ class Map:
 
 
 class Zone:
-    def __init__(self, type: ZoneType, coords: tuple[int, int]) -> None:
-        self.type: ZoneType = type
+    def __init__(self, type: str, coords: tuple[int, ...]) -> None:
+        self.type: ZoneType = ZoneType(type).value
         self.connections: list[tuple[Zone, int]] = []
-        self.coords: tuple[int, int]
+        self.coords: tuple[int, ...] = coords
         self.rule: ZoneRule = ZoneRule.NORMAL
-        self.color: str = "" #TODO Find a way to cleanly implement colors
+        self.color: str = ""  # TODO Find a way to cleanly implement colors
