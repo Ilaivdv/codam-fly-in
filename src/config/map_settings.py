@@ -1,7 +1,7 @@
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
 from collections import defaultdict
-from typing import Any
+from src import Zone, Map
 import termios
 import tty
 import sys
@@ -15,8 +15,7 @@ class MapError(Exception):
 
 
 class MapValidator(BaseModel):
-    _map: dict[str, dict[str, Any] | int] = {}
-    _connections: dict[str, list[str]] = defaultdict(list)
+    _map: Map = Map()
 
     def raise_map_error(self, msg: str, line_count: int = 0) -> None:
         raise MapError(f"\n{Fore.RED}Error" + (f" at line {line_count}" if
@@ -45,15 +44,24 @@ class MapValidator(BaseModel):
         def validate_connection(connection: str, names: list[str]) -> bool:
             match = re.fullmatch((r"^connection\s*:\s+"
                                   rf"(?P<n1>\b({'|'.join(names)})\b)-"
-                                  rf"(?P<n2>\b({'|'.join(names)})\b)$"),
+                                  rf"(?P<n2>\b({'|'.join(names)})\b)"
+                                  rf"(?P<metadata>\s+\[\s*max_link_capacity"
+                                  r"=\d+\s*\])*$"),
                                  connection)
             if not match:
                 return False
             else:
-                if match.group("n1") in self._connections[match.group("n2")]\
+                if not self._map.zones.get(match.group("n1"))\
+                        or not self._map.zones.get(match.group("n2")):
+                    self.raise_map_error("found undefined connection(s)")
+
+                elif self._map.zones[match.group("n1")]\
+                        in self._map.zones[match.group("n2")].connections\
                         or match.group("n1") == match.group("n2"):
                     self.raise_map_error("found duplicate connection")
-                self._connections[match.group("n1")].append(match.group("n2"))
+
+                self._map.zones[match.group("n1")].connections.append(
+                        self._map.zones[match.group("n2")])
             return True
 
         with open(path) as f:
@@ -69,16 +77,16 @@ class MapValidator(BaseModel):
                 self.raise_map_error("key 'nb_drones' is missing or incorrect",
                                      zones[0][1])
             else:
-                self._map["nb_drones"] = int(zones.pop(0)[0].split(':', 1)[1])
+                self._map.nb_drones = int(zones.pop(0)[0].split(':', 1)[1])
 
-            # Parse through zone configuration
+            # Parse through zone configuration with strict regex pattern
             for line, line_count in zones:
                 curr_key = re.fullmatch(
                         (rf"^(?P<zone>{'|'.join(valid_zones)})\s*:\s+"
                          r"(?P<name>\b[^\W-]+\b)\s+"
                          r"(?P<coords>-?\d+\s+-?\d+)\s+"
-                         rf"(?P<metadata>\[({'|'.join(
-                             valid_metadata)})=.+\])*$"),
+                         rf"(?P<metadata>\[\s*({'|'.join(
+                             valid_metadata)})=.+\s*\])*$"),
                         line)
                 if not curr_key:
                     # If not zone, check for connection
@@ -88,7 +96,10 @@ class MapValidator(BaseModel):
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
                 else:
+                    curr_zone: Zone = Zone(curr_key.group("zone"),
+                                           curr_key.group("coords"))
                     zone_names.append(curr_key.group("name"))
+                    self._map.zones[curr_key.group("name")] = curr_zone
 
 
 class MapSelector(BaseModel):
