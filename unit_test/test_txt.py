@@ -16,6 +16,12 @@ def test_invalid_config() -> None:
     with pytest.raises(MapError):
         assert map.validate_map("unit_test/maps/invalid_unordered.txt")
 
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_connect.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_duplicate_connect.txt")
+
 
 def test_invalid_files() -> None:
     map = MapValidator()
