@@ -1,6 +1,6 @@
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
-from src import Map, Zone, ZoneType
+from src import Map, Zone
 import termios
 import tty
 import sys
@@ -118,7 +118,6 @@ class MapValidator(BaseModel):
                                            tuple(map(int, coords)))
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
-        print([i.__dict__ for i in self._map.zones.values()])
         return self._map
 
 

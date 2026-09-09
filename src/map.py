@@ -22,7 +22,7 @@ class Map:
 
 class Zone:
     def __init__(self, type: str, coords: tuple[int, ...]) -> None:
-        self.type: ZoneType = ZoneType(type).value
+        self.type: ZoneType = ZoneType(type)
         self.connections: list[tuple[Zone, int]] = []
         self.coords: tuple[int, ...] = coords
         self.rule: ZoneRule = ZoneRule.NORMAL
