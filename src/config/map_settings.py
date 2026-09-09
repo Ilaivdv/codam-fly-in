@@ -51,9 +51,8 @@ class MapValidator(BaseModel):
                 return False
             else:
                 if match.group("n1") in self._connections[match.group("n2")]:
-                    return False
+                    self.raise_map_error("found duplicate connection")
                 self._connections[match.group("n1")].append(match.group("n2"))
-                print(self._connections)
             return True
 
         with open(path) as f:
@@ -96,11 +95,13 @@ class MapSelector(BaseModel):
         res: list[str] = []
 
         if not os.path.isdir(path) and not os.path.exists(path):
-            raise MapError(f"{path} is not a valid map directory")
+            self._map_validator.raise_map_error(
+                    f"{path} is not a valid map directory")
         for i in os.listdir(path):
             i = path + i
             if not os.path.isdir(i) and not os.path.isfile(i):
-                raise MapError(f"{i} is not a valid map directory/file")
+                self._map_validator.raise_map_error(
+                        f"{path} is not a valid map directory/file")
             if i.endswith(".txt"):
                 res.append(i)
             elif os.path.isdir(i):
@@ -140,21 +141,25 @@ class MapSelector(BaseModel):
                 print(option)
 
             key_pressed = read_key()
-            if key_pressed == 'q':
-                print("\033c")
-                return
-            elif key_pressed == '\r' or key_pressed == "right":
-                if self._map_options[selected].endswith(".txt"):
-                    self._map_validator.validate_map(
-                            self._map_options[selected])
-                else:
-                    self.option_select(self._map_options[selected])
-                return
-            elif key_pressed == "left":
-                self.option_select(self._map_options[0].rsplit('/', 2)[0])
-                return
-            elif key_pressed == "down" and \
-                    selected < len(self._map_options) - 1:
-                selected += 1
-            elif key_pressed == "up" and selected > 0:
-                selected -= 1
+            match key_pressed:
+                case 'q':
+                    print("\033c")
+                    return
+                case '\r' | "right":
+                    if self._map_options[selected].endswith(".txt"):
+                        self._map_validator.validate_map(
+                                self._map_options[selected])
+                    else:
+                        self.option_select(self._map_options[selected])
+                    return
+                case "left":
+                    self.option_select(self._map_options[0].rsplit('/', 2)[0])
+                    return
+                case "down":
+                    if selected < len(self._map_options) - 1:
+                        selected += 1
+                case "up":
+                    if selected > 0:
+                        selected -= 1
+                case _:
+                    pass
