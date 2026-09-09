@@ -1,0 +1,5 @@
+# Hi
+
+nb_drones: 10
+
+shub: hub1 0 0 [color=green]
