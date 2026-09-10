@@ -1,0 +1,14 @@
+# Test
+
+nb_drones: 10
+
+start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+connection: start-waypoint1
+
+hub: waypoint2 2 0 [color=blue]
+connection: waypoint1-waypoint2
+
+end_hub: goal 3 0 [color=red]
+
+connection: waypoint2-goal

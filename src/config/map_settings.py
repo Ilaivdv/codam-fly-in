@@ -36,7 +36,7 @@ class MapValidator(BaseModel):
                                   rf"(?P<n1>\b({'|'.join(names)})\b)-"
                                   rf"(?P<n2>\b({'|'.join(names)})\b)"
                                   rf"(?P<metadata>\s+\[\s*max_link_capacity"
-                                  r"=\d+\s*\])*$"),
+                                  r"=\d+\s*\])?$"),
                                  connection)
             if not match:
                 return False
@@ -77,6 +77,10 @@ class MapValidator(BaseModel):
                     case "color":
                         self._map.zones[current_zone].color = value
                     case "max_drones":
+                        max_drones: int = int(value)
+                        if max_drones < 0:
+                            self.raise_map_error("invalid value in metadata",
+                                                 line_count)
                         self._map.zones[current_zone].max_drones = int(value)
                     case "zone":
                         try:
@@ -85,7 +89,8 @@ class MapValidator(BaseModel):
                         except ValueError as e:
                             self.raise_map_error(e.__str__(), line_count)
                     case _:
-                        self.raise_map_error("invalid metadata", line_count)
+                        self.raise_map_error("invalid key in metadata",
+                                             line_count)
                 check_duplicate.append(key)
 
         with open(path) as f:
@@ -116,7 +121,7 @@ class MapValidator(BaseModel):
                          r"(?P<name>\b[^\W-]+\b)\s+"
                          r"(?P<coords>-?\d+\s+-?\d+)\s+"
                          rf"(?P<metadata>\[\s*({'|'.join(
-                             valid_metadata)})=.+\s*\])*$"),
+                             valid_metadata)})=.+\s*\])?$"),
                         line)
                 if not curr_key:
                     # If not zone, check for connection

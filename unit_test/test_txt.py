@@ -1,11 +1,8 @@
 import pytest
 from src.config.map_settings import MapValidator, MapError
 
-def test_invalid_config() -> None:
+def test_invalid_metadata() -> None:
     map = MapValidator()
-
-    with pytest.raises(MapError):
-        assert map.validate_map("unit_test/maps/invalid_coords.txt")
 
     with pytest.raises(MapError):
         assert map.validate_map("unit_test/maps/invalid_connect_metadata.txt")
@@ -14,10 +11,36 @@ def test_invalid_config() -> None:
         assert map.validate_map("unit_test/maps/invalid_zone_metadata.txt")
 
     with pytest.raises(MapError):
-        assert map.validate_map("unit_test/maps/invalid_text.txt")
+        assert map.validate_map("unit_test/maps/invalid_duplicate_metadata.txt")
+
+
+def test_invalid_numbers() -> None:
+    map = MapValidator()
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_0_drones.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_coords.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_negative_drones.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_zone_capacity.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_connect_capacity.txt")
+
+
+def test_invalid_config() -> None:
+    map = MapValidator()
 
     with pytest.raises(MapError):
         assert map.validate_map("unit_test/maps/invalid_unordered.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_zone.txt")
 
     with pytest.raises(MapError):
         assert map.validate_map("unit_test/maps/invalid_connect.txt")
@@ -26,10 +49,7 @@ def test_invalid_config() -> None:
         assert map.validate_map("unit_test/maps/invalid_duplicate_connect.txt")
 
     with pytest.raises(MapError):
-        assert map.validate_map("unit_test/maps/invalid_duplicate_metadata.txt")
-
-    with pytest.raises(MapError):
-        assert map.validate_map("unit_test/maps/invalid_zone.txt")
+        assert map.validate_map("unit_test/maps/invalid_text.txt")
 
 
 def test_invalid_files() -> None:
@@ -45,9 +65,10 @@ def test_invalid_files() -> None:
         assert map.validate_map("/etc/sudoers")
 
 
-def test_valid() -> None:
+def test_valid_config() -> None:
     map = MapValidator()
 
     assert map.validate_map("unit_test/maps/valid_small.txt") is not None
     assert map.validate_map("unit_test/maps/valid_small.txt") is not None
+    assert map.validate_map("unit_test/maps/valid_unordered.txt") is not None
 
