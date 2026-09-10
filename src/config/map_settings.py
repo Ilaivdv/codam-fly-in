@@ -64,7 +64,6 @@ class MapValidator(BaseModel):
 
         def validate_metadata(metadata: list[str], current_zone: str,
                               line_count: int) -> None:
-            zone_rules: list[str] = [i.value for i in ZoneRule]
             check_duplicate: list[str] = []
 
             for i in metadata:
@@ -76,11 +75,15 @@ class MapValidator(BaseModel):
                                          line_count)
                 match key:
                     case "color":
-                        ...  # TODO Find a way to cleanly implement colors
+                        self._map.zones[current_zone].color = value
                     case "max_drones":
                         self._map.zones[current_zone].max_drones = int(value)
                     case "zone":
-                        ...
+                        try:
+                            self._map.zones[current_zone].rule = ZoneRule(
+                                    value)
+                        except ValueError as e:
+                            self.raise_map_error(e.__str__(), line_count)
                     case _:
                         self.raise_map_error("invalid metadata", line_count)
                 check_duplicate.append(key)
@@ -100,7 +103,11 @@ class MapValidator(BaseModel):
                 self.raise_map_error("key 'nb_drones' is missing or incorrect",
                                      zones[0][1])
             else:
-                self._map.nb_drones = int(zones.pop(0)[0].split(':', 1)[1])
+                nb_drones: int = int(zones.pop(0)[0].split(':', 1)[1])
+                if nb_drones < 1:
+                    self.raise_map_error("program can't run with 0 drones",
+                                         zones[0][1])
+                self._map.nb_drones = nb_drones
 
             # Parse through zone configuration with strict regex pattern
             for line, line_count in zones:
@@ -122,6 +129,7 @@ class MapValidator(BaseModel):
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(curr_key.group("zone"),
                                            tuple(map(int, coords)))
+
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
                     if not curr_key.group("metadata"):
