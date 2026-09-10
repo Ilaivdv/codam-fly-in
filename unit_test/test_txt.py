@@ -71,4 +71,5 @@ def test_valid_config() -> None:
     assert map.validate_map("unit_test/maps/valid_small.txt") is not None
     assert map.validate_map("unit_test/maps/valid_small.txt") is not None
     assert map.validate_map("unit_test/maps/valid_unordered.txt") is not None
+    assert map.validate_map("unit_test/maps/valid_big_nb_drones.txt") is not None
 
