@@ -69,7 +69,6 @@ class MapValidator(BaseModel):
 
             for i in metadata:
                 key, value = i.replace(' ', '').split('=', 1)
-                print(key, value)
                 if key not in valid_metadata:
                     self.raise_map_error("found invalid metadata", line_count)
                 elif key in check_duplicate:
@@ -199,8 +198,8 @@ class MapSelector(BaseModel):
                         return self._map_validator.validate_map(
                                     self._map_options[selected])
                     else:
-                        for i in os.listdir(self._map_options[selected]):
-                            if i.endswith(".txt"):
+                        for f in os.listdir(self._map_options[selected]):
+                            if f.endswith(".txt"):
                                 return self.option_select(
                                         self._map_options[selected])
                 case "left":
