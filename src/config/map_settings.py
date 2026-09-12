@@ -67,9 +67,12 @@ class MapValidator(BaseModel):
             check_duplicate: list[str] = []
 
             for i in metadata:
+                # Clean up and split metadata keys and values
                 key, value = i.replace(' ', '').split('=', 1)
                 if key not in valid_metadata:
                     self.raise_map_error("found invalid metadata", line_count)
+
+                # Every saved key gets added to a list to check for duplicates
                 elif key in check_duplicate:
                     self.raise_map_error("found duplicate metadata value",
                                          line_count)
@@ -77,11 +80,14 @@ class MapValidator(BaseModel):
                     case "color":
                         self._map.zones[current_zone].color = value
                     case "max_drones":
-                        max_drones: int = int(value)
-                        if max_drones < 0:
-                            self.raise_map_error("invalid value in metadata",
-                                                 line_count)
-                        self._map.zones[current_zone].max_drones = int(value)
+                        try:
+                            max_drones: int = int(value)
+                            if max_drones < 0:
+                                self.raise_map_error("invalid value in metadata",
+                                                     line_count)
+                            self._map.zones[current_zone].max_drones = int(value)
+                        except ValueError as e:
+                            self.raise_map_error(e.__str__(), line_count)
                     case "zone":
                         try:
                             self._map.zones[current_zone].rule = ZoneRule(
@@ -131,10 +137,10 @@ class MapValidator(BaseModel):
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
                 else:
+                    # Initialize new zone and validate metadata
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(curr_key.group("zone"),
                                            tuple(map(int, coords)))
-
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
                     if not curr_key.group("metadata"):
