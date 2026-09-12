@@ -26,5 +26,5 @@ class Zone:
         self.connections: list[tuple[Zone, int]] = []
         self.coords: tuple[int, ...] = coords
         self.rule: ZoneRule = ZoneRule.NORMAL
-        self.color: str = ""  # TODO Find a way to cleanly implement colors
+        self.color: str = "grey"
         self.max_drones: int = -1
