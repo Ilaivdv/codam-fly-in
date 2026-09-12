@@ -27,6 +27,9 @@ def test_invalid_numbers() -> None:
         assert map.validate_map("unit_test/maps/invalid_negative_drones.txt")
 
     with pytest.raises(MapError):
+        assert map.validate_map("unit_test/maps/invalid_negative_capacity.txt")
+
+    with pytest.raises(MapError):
         assert map.validate_map("unit_test/maps/invalid_zone_capacity.txt")
 
     with pytest.raises(MapError):
