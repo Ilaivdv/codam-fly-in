@@ -17,7 +17,12 @@ class ZoneRule(StrEnum):
 class Map:
     def __init__(self) -> None:
         self.nb_drones: int
+        self.drones: dict[int, Drone] = {}
         self.zones: dict[str, Zone] = {}
+
+    def init_drones(self, nb_drones: int) -> None:
+        for i in range(1, nb_drones + 1):
+            self.drones[i] = Drone(id=i)
 
 
 class Zone:
@@ -28,3 +33,8 @@ class Zone:
         self.rule: ZoneRule = ZoneRule.NORMAL
         self.color: str = "grey"
         self.max_drones: int = -1
+
+
+class Drone:
+    def __init__(self, id: int) -> None:
+        self._id: int = id

@@ -12,6 +12,7 @@ class ConfigError(Exception):
 
 
 class Config(BaseModel):
+
     # Setting arbitrary_types_allowed to allow custom classes as type hint
     model_config = ConfigDict(arbitrary_types_allowed=True)
     _map_selector: MapSelector = PrivateAttr(MapSelector())

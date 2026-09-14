@@ -25,6 +25,7 @@ class MapValidator(BaseModel):
         valid_zones: list[str] = [i.value for i in ZoneType]
         valid_metadata: list[str] = ["color", "zone", "max_drones"]
 
+        # Checks if path is readable and exists
         if not os.path.exists(path):
             self.raise_map_error(f"{path} is not a valid map path")
         elif not os.access(path, os.R_OK):
@@ -102,6 +103,7 @@ class MapValidator(BaseModel):
         with open(path) as f:
             lines = f.readlines()
             zone_names: list[str] = []
+
             # Remove all blank/commented lines
             zones: list[tuple[str, int]] = (
                     [(i.strip(), lines.index(i) + 1) for i in lines if
@@ -118,7 +120,13 @@ class MapValidator(BaseModel):
                 if nb_drones < 1:
                     self.raise_map_error("program can't run with 0 drones",
                                          zones[0][1])
+                elif nb_drones > sys.maxsize:
+                    self.raise_map_error("nb_drones exceeds systems max size",
+                                         zones[0][1])
+
+                # Initialize nb_drones
                 self._map.nb_drones = nb_drones
+                self._map.init_drones(nb_drones)
 
             # Parse through zone configuration with strict regex pattern
             for line, line_count in zones:
@@ -130,13 +138,15 @@ class MapValidator(BaseModel):
                              valid_metadata)})=.+\s*\])?$"),
                         line)
                 if not curr_key:
-                    # If not zone, check for connection
+
+                    # If zone not found in key, check for connection
                     if validate_connection(line, zone_names, line_count):
                         continue
                     self.raise_map_error("incorrect formatting", line_count)
                 elif curr_key.group("name") in zone_names:
                     self.raise_map_error("found duplicate name", line_count)
                 else:
+
                     # Initialize new zone and validate metadata
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(curr_key.group("zone"),
