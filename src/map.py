@@ -26,8 +26,9 @@ class Map:
 
 
 class Connection:
-    def __init__(self, path: tuple[Zone, Zone]) -> None:
+    def __init__(self, path: tuple[Zone, Zone], capacity: int) -> None:
         self.path: tuple[Zone, Zone] = path
+        self.capacity: int = capacity
 
 
 class Zone:
@@ -39,6 +40,9 @@ class Zone:
         self.rule: ZoneRule = ZoneRule.NORMAL
         self.color: str = "gray"
         self.max_drones: int = 1
+
+    def get_neighbors(self) -> list[Zone]:
+        return [zone.path[1] for zone in self.connections]
 
 
 class Drone:
