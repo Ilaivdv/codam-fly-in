@@ -40,6 +40,8 @@ class Zone:
         self.color: str = "gray"
         self.max_drones: int = 1
 
+        self.distance: int  # TODO Implement distance to end_hub
+
     def get_neighbors(self) -> list[Zone]:
         return [zone.path[1] for zone in self.connections]
 
