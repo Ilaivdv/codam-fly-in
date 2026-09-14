@@ -3,7 +3,7 @@ from .config import Config
 
 def main() -> None:
     cfg = Config()
-    cfg.args
+    cfg.args  # TODO Remove later, just to silence warnings
 
 
 if __name__ == "__main__":
