@@ -22,6 +22,8 @@ class Config(BaseModel):
     def model_post_init(self, _: Any, /) -> None:
         self.args = self._register_arguments()
         try:
+
+            # Initialize map through option_select selected file
             self.map = self._map_selector.option_select(self.args.map_path)
             if not self.map:
                 raise MapError((f"\n{Fore.RED}Error{Fore.RESET}: "

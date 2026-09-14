@@ -84,9 +84,11 @@ class MapValidator(BaseModel):
                         try:
                             max_drones: int = int(value)
                             if max_drones < 0:
-                                self.raise_map_error("invalid value in metadata",
-                                                     line_count)
-                            self._map.zones[current_zone].max_drones = int(value)
+                                self.raise_map_error(
+                                        "invalid value in metadata",
+                                        line_count)
+                            self._map.zones[
+                                    current_zone].max_drones = int(value)
                         except ValueError as e:
                             self.raise_map_error(e.__str__(), line_count)
                     case "zone":
