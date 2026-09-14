@@ -151,8 +151,8 @@ class MapValidator(BaseModel):
 
                     # Initialize new zone and validate metadata
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
-                    curr_zone: Zone = Zone(curr_key.group("zone"),
-                                           tuple(map(int, coords)))
+                    curr_zone: Zone = Zone(type=curr_key.group("zone"),
+                                           pos=tuple(map(int, coords)))
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
                     if not curr_key.group("metadata"):

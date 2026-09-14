@@ -25,14 +25,20 @@ class Map:
             self.drones[i] = Drone(id=i)
 
 
+class Connection:
+    def __init__(self, path: tuple[Zone, Zone]) -> None:
+        self.path: tuple[Zone, Zone] = path
+
+
 class Zone:
-    def __init__(self, type: str, coords: tuple[int, ...]) -> None:
+    def __init__(self, type: str, pos: tuple[int, ...]) -> None:
         self.type: ZoneType = ZoneType(type)
-        self.connections: list[tuple[Zone, int]] = []
-        self.coords: tuple[int, ...] = coords
+        # self.connections: list[tuple[Zone, int]] = []
+        self.connections: list[Connection]
+        self.pos: tuple[int, ...] = pos
         self.rule: ZoneRule = ZoneRule.NORMAL
-        self.color: str = "grey"
-        self.max_drones: int = -1
+        self.color: str = "gray"
+        self.max_drones: int = 1
 
 
 class Drone:
