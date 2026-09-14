@@ -33,9 +33,8 @@ class Connection:
 
 class Zone:
     def __init__(self, type: str, pos: tuple[int, ...]) -> None:
+        self.connections: list[Connection] = []
         self.type: ZoneType = ZoneType(type)
-        # self.connections: list[tuple[Zone, int]] = []
-        self.connections: list[Connection]
         self.pos: tuple[int, ...] = pos
         self.rule: ZoneRule = ZoneRule.NORMAL
         self.color: str = "gray"

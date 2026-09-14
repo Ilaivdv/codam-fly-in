@@ -41,15 +41,13 @@ class MapValidator(BaseModel):
             if not match:
                 return False
             else:  # Check for duplicate connections before appending
-                if not self._map.zones.get(match.group("n1"))\
+                if not self._map.zones.get(match.group("n1")) \
                         or not self._map.zones.get(match.group("n2")):
                     raise MapError("found undefined connection(s)", line_count)
 
-                # elif self._map.zones[match.group("n1")]\
-                #         in [i[0] for i in self._map.zones[
-                #             match.group("n2")].connections]\
-                #         or match.group("n1") == match.group("n2"):
-                elif self._map.zones[match.group("n1")]:
+                elif self._map.zones[match.group("n1")] in \
+                        self._map.zones[match.group("n2")].get_neighbors() \
+                        or match.group("n1") == match.group("n2"):
                     raise MapError("found duplicate connection", line_count)
                 try:
                     max_capacity: int = (int(match.group("metadata").split(
@@ -60,8 +58,7 @@ class MapValidator(BaseModel):
                             Connection(path=(
                                 self._map.zones[match.group("n1")],
                                 self._map.zones[match.group("n2")]),
-                                       capacity=max_capacity)
-                            )
+                                       capacity=max_capacity))
 
                 except ValueError as e:
                     raise MapError(e.__str__(), line_count)
