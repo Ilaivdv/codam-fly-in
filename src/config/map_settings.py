@@ -1,6 +1,6 @@
+from src import Map, Zone, Connection, ZoneType, ZoneRule
 from pydantic import BaseModel, PrivateAttr
 from colorama import Back, Fore, Style
-from src import Map, Zone, ZoneType, ZoneRule
 import termios
 import tty
 import sys
@@ -10,16 +10,15 @@ import re
 
 class MapError(Exception):
     """ Map error for verbosity """
-    pass
+
+    def __init__(self, msg: str, line: int = 0) -> None:
+        super().__init__(f"\n{Fore.RED}Error" +
+                         (f" at line {line}" if line else '') +
+                         f"{Fore.RESET}: {msg}")
 
 
 class MapValidator(BaseModel):
     _map: Map = Map()
-
-    def raise_map_error(self, msg: str, line_count: int = 0) -> None:
-        raise MapError(f"\n{Fore.RED}Error" + (f" at line {line_count}" if
-                                               line_count else '') +
-                       f"{Fore.RESET}: {msg}")
 
     def validate_map(self, path: str) -> Map:
         valid_zones: list[str] = [i.value for i in ZoneType]
@@ -27,9 +26,9 @@ class MapValidator(BaseModel):
 
         # Checks if path is readable and exists
         if not os.path.exists(path):
-            self.raise_map_error(f"{path} is not a valid map path")
+            raise MapError(f"{path} is not a valid map path")
         elif not os.access(path, os.R_OK):
-            self.raise_map_error(f"no permission to read file at path {path}")
+            raise MapError(f"no permission to read file at path {path}")
 
         def validate_connection(connection: str, names: list[str],
                                 line_count: int) -> bool:
@@ -44,23 +43,28 @@ class MapValidator(BaseModel):
             else:  # Check for duplicate connections before appending
                 if not self._map.zones.get(match.group("n1"))\
                         or not self._map.zones.get(match.group("n2")):
-                    self.raise_map_error("found undefined connection(s)",
-                                         line_count)
+                    raise MapError("found undefined connection(s)", line_count)
 
-                elif self._map.zones[match.group("n1")]\
-                        in [i[0] for i in self._map.zones[
-                            match.group("n2")].connections]\
-                        or match.group("n1") == match.group("n2"):
-                    self.raise_map_error("found duplicate connection",
-                                         line_count)
+                # elif self._map.zones[match.group("n1")]\
+                #         in [i[0] for i in self._map.zones[
+                #             match.group("n2")].connections]\
+                #         or match.group("n1") == match.group("n2"):
+                elif self._map.zones[match.group("n1")]:
+                    raise MapError("found duplicate connection", line_count)
                 try:
+                    max_capacity: int = (int(match.group("metadata").split(
+                                '=', 1)[1].removesuffix(']'))
+                                         if match.group("metadata") else 1)
+
                     self._map.zones[match.group("n1")].connections.append(
-                            (self._map.zones[match.group("n2")],
-                             (int(match.group("metadata").split(
-                                '=', 1)[1].removesuffix(']')) if
-                             match.group("metadata") else -1)))
+                            Connection(path=(
+                                self._map.zones[match.group("n1")],
+                                self._map.zones[match.group("n2")]),
+                                       capacity=max_capacity)
+                            )
+
                 except ValueError as e:
-                    self.raise_map_error(e.__str__(), line_count)
+                    raise MapError(e.__str__(), line_count)
             return True
 
         def validate_metadata(metadata: list[str], current_zone: str,
@@ -71,12 +75,12 @@ class MapValidator(BaseModel):
                 # Clean up and split metadata keys and values
                 key, value = i.replace(' ', '').split('=', 1)
                 if key not in valid_metadata:
-                    self.raise_map_error("found invalid metadata", line_count)
+                    raise MapError("found invalid metadata", line_count)
 
                 # Every saved key gets added to a list to check for duplicates
                 elif key in check_duplicate:
-                    self.raise_map_error("found duplicate metadata value",
-                                         line_count)
+                    raise MapError("found duplicate metadata value",
+                                   line_count)
                 match key:
                     case "color":
                         self._map.zones[current_zone].color = value
@@ -84,22 +88,20 @@ class MapValidator(BaseModel):
                         try:
                             max_drones: int = int(value)
                             if max_drones < 0:
-                                self.raise_map_error(
-                                        "invalid value in metadata",
-                                        line_count)
+                                raise MapError("invalid value in metadata",
+                                               line_count)
                             self._map.zones[
                                     current_zone].max_drones = int(value)
                         except ValueError as e:
-                            self.raise_map_error(e.__str__(), line_count)
+                            raise MapError(e.__str__(), line_count)
                     case "zone":
                         try:
                             self._map.zones[current_zone].rule = ZoneRule(
                                     value)
                         except ValueError as e:
-                            self.raise_map_error(e.__str__(), line_count)
+                            raise MapError(e.__str__(), line_count)
                     case _:
-                        self.raise_map_error("invalid key in metadata",
-                                             line_count)
+                        raise MapError("invalid key in metadata", line_count)
                 check_duplicate.append(key)
 
         with open(path) as f:
@@ -111,20 +113,20 @@ class MapValidator(BaseModel):
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
             if not len(zones):
-                self.raise_map_error("file does not contain a map")
+                raise MapError("file does not contain a map")
 
             # Check if first option is nb_drones
             if not re.fullmatch(r"^nb_drones\s*:\s+\d+$", zones[0][0]):
-                self.raise_map_error("key 'nb_drones' is missing or incorrect",
-                                     zones[0][1])
+                raise MapError("key 'nb_drones' is missing or incorrect",
+                               zones[0][1])
             else:
                 nb_drones: int = int(zones.pop(0)[0].split(':', 1)[1])
                 if nb_drones < 1:
-                    self.raise_map_error("program can't run with 0 drones",
-                                         zones[0][1])
+                    raise MapError("program can't run with 0 drones",
+                                   zones[0][1])
                 elif nb_drones > sys.maxsize:
-                    self.raise_map_error("nb_drones exceeds systems max size",
-                                         zones[0][1])
+                    raise MapError("nb_drones exceeds systems max size",
+                                   zones[0][1])
 
                 # Initialize nb_drones
                 self._map.nb_drones = nb_drones
@@ -144,9 +146,9 @@ class MapValidator(BaseModel):
                     # If zone not found in key, check for connection
                     if validate_connection(line, zone_names, line_count):
                         continue
-                    self.raise_map_error("incorrect formatting", line_count)
+                    raise MapError("incorrect formatting", line_count)
                 elif curr_key.group("name") in zone_names:
-                    self.raise_map_error("found duplicate name", line_count)
+                    raise MapError("found duplicate name", line_count)
                 else:
 
                     # Initialize new zone and validate metadata
@@ -173,13 +175,11 @@ class MapSelector(BaseModel):
         res: list[str] = []
 
         if not os.path.isdir(path) and not os.path.exists(path):
-            self._map_validator.raise_map_error(
-                    f"{path} is not a valid map directory")
+            raise MapError(f"{path} is not a valid map directory")
         for i in os.listdir(path):
             i = path + i
             if not os.path.isdir(i) and not os.path.isfile(i):
-                self._map_validator.raise_map_error(
-                        f"{path} is not a valid map directory/file")
+                raise MapError(f"{path} is not a valid map directory/file")
             if i.endswith(".txt"):
                 res.append(i)
             elif os.path.isdir(i):
