@@ -1,73 +1,73 @@
+from src.config.parsing import MapValidator, ParseError
 import pytest
-from src.config.parsing import MapValidator, MapError
 
 def test_invalid_metadata() -> None:
     map = MapValidator()
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_connect_metadata.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_zone_metadata.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_duplicate_metadata.txt")
 
 
 def test_invalid_numbers() -> None:
     map = MapValidator()
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_0_drones.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_coords.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_argument_amount.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_negative_drones.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_negative_capacity.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_zone_capacity.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_connect_capacity.txt")
 
 
 def test_invalid_config() -> None:
     map = MapValidator()
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_unordered.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_zone.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_connect.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_duplicate_connect.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_text.txt")
 
 
 def test_invalid_files() -> None:
     map = MapValidator()
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("fake_directory/a.tx")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("unit_test/maps/invalid_empty.txt")
 
-    with pytest.raises(MapError):
+    with pytest.raises(ParseError):
         assert map.validate_map("/etc/sudoers")
 
 

@@ -1,14 +1,9 @@
 from pydantic import BaseModel, PrivateAttr, ConfigDict
-from .parsing import MapSelector, MapError
-from colorama import Fore
 from argparse import Namespace, ArgumentParser
+from .parsing import MapSelector, ParseError
+from colorama import Fore
 from typing import Any
 from src import Map
-
-
-class ConfigError(Exception):
-    """ Config error for verbosity """
-    pass
 
 
 class Config(BaseModel):
@@ -26,9 +21,9 @@ class Config(BaseModel):
             # Initialize map through option_select selected file
             self.map = self._map_selector.option_select(self.args.map_path)
             if not self.map:
-                raise MapError((f"\n{Fore.RED}Error{Fore.RESET}: "
+                raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
                                 "invalid map configuration"))
-        except MapError as e:
+        except ParseError as e:
             print(e)
 
     def _register_arguments(self) -> Namespace:

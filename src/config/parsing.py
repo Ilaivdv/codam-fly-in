@@ -8,8 +8,8 @@ import os
 import re
 
 
-class MapError(Exception):
-    """ Map error for verbosity """
+class ParseError(Exception):
+    """ Parse error for verbosity """
 
     def __init__(self, msg: str, line: int = 0) -> None:
         super().__init__(f"\n{Fore.RED}Error" +
@@ -18,7 +18,7 @@ class MapError(Exception):
 
 
 class MapValidator(BaseModel):
-    _map: Map = Map()
+    _map: Map = PrivateAttr(Map())
 
     def validate_map(self, path: str) -> Map:
         valid_zones: list[str] = [i.value for i in ZoneType]
@@ -26,9 +26,9 @@ class MapValidator(BaseModel):
 
         # Checks if path is readable and exists
         if not os.path.exists(path):
-            raise MapError(f"{path} is not a valid map path")
+            raise ParseError(f"{path} is not a valid map path")
         elif not os.access(path, os.R_OK):
-            raise MapError(f"no permission to read file at path {path}")
+            raise ParseError(f"no permission to read file at path {path}")
 
         def validate_connection(connection: str, names: list[str],
                                 line_count: int) -> bool:
@@ -43,12 +43,12 @@ class MapValidator(BaseModel):
             else:  # Check for duplicate connections before appending
                 if not self._map.zones.get(match.group("n1")) \
                         or not self._map.zones.get(match.group("n2")):
-                    raise MapError("found undefined connection(s)", line_count)
+                    raise ParseError("found undefined connection(s)", line_count)
 
                 elif self._map.zones[match.group("n1")] in \
                         self._map.zones[match.group("n2")].get_neighbors() \
                         or match.group("n1") == match.group("n2"):
-                    raise MapError("found duplicate connection", line_count)
+                    raise ParseError("found duplicate connection", line_count)
                 try:
                     max_capacity: int = (int(match.group("metadata").split(
                                 '=', 1)[1].removesuffix(']'))
@@ -61,7 +61,7 @@ class MapValidator(BaseModel):
                                        capacity=max_capacity))
 
                 except ValueError as e:
-                    raise MapError(e.__str__(), line_count)
+                    raise ParseError(e.__str__(), line_count)
             return True
 
         def validate_metadata(metadata: list[str], current_zone: str,
@@ -72,11 +72,11 @@ class MapValidator(BaseModel):
                 # Clean up and split metadata keys and values
                 key, value = i.replace(' ', '').split('=', 1)
                 if key not in valid_metadata:
-                    raise MapError("found invalid metadata", line_count)
+                    raise ParseError("found invalid metadata", line_count)
 
                 # Every saved key gets added to a list to check for duplicates
                 elif key in check_duplicate:
-                    raise MapError("found duplicate metadata value",
+                    raise ParseError("found duplicate metadata value",
                                    line_count)
                 match key:
                     case "color":
@@ -85,20 +85,20 @@ class MapValidator(BaseModel):
                         try:
                             max_drones: int = int(value)
                             if max_drones < 0:
-                                raise MapError("invalid value in metadata",
+                                raise ParseError("invalid value in metadata",
                                                line_count)
                             self._map.zones[
                                     current_zone].max_drones = int(value)
                         except ValueError as e:
-                            raise MapError(e.__str__(), line_count)
+                            raise ParseError(e.__str__(), line_count)
                     case "zone":
                         try:
                             self._map.zones[current_zone].rule = ZoneRule(
                                     value)
                         except ValueError as e:
-                            raise MapError(e.__str__(), line_count)
+                            raise ParseError(e.__str__(), line_count)
                     case _:
-                        raise MapError("invalid key in metadata", line_count)
+                        raise ParseError("invalid key in metadata", line_count)
                 check_duplicate.append(key)
 
         with open(path) as f:
@@ -110,19 +110,19 @@ class MapValidator(BaseModel):
                     [(i.strip(), lines.index(i) + 1) for i in lines if
                      not i.startswith('#') and i.strip() != ''])
             if not len(zones):
-                raise MapError("file does not contain a map")
+                raise ParseError("file does not contain a map")
 
             # Check if first option is nb_drones
             if not re.fullmatch(r"^nb_drones\s*:\s+\d+$", zones[0][0]):
-                raise MapError("key 'nb_drones' is missing or incorrect",
+                raise ParseError("key 'nb_drones' is missing or incorrect",
                                zones[0][1])
             else:
                 nb_drones: int = int(zones.pop(0)[0].split(':', 1)[1])
                 if nb_drones < 1:
-                    raise MapError("program can't run with 0 drones",
+                    raise ParseError("program can't run with 0 drones",
                                    zones[0][1])
                 elif nb_drones > sys.maxsize:
-                    raise MapError("nb_drones exceeds systems max size",
+                    raise ParseError("nb_drones exceeds systems max size",
                                    zones[0][1])
 
                 # Initialize nb_drones
@@ -143,9 +143,9 @@ class MapValidator(BaseModel):
                     # If zone not found in key, check for connection
                     if validate_connection(line, zone_names, line_count):
                         continue
-                    raise MapError("incorrect formatting", line_count)
+                    raise ParseError("incorrect formatting", line_count)
                 elif curr_key.group("name") in zone_names:
-                    raise MapError("found duplicate name", line_count)
+                    raise ParseError("found duplicate name", line_count)
                 else:
 
                     # Initialize new zone and validate metadata
@@ -172,11 +172,11 @@ class MapSelector(BaseModel):  ## TODO Move this class to a more fitting place
         res: list[str] = []
 
         if not os.path.isdir(path) and not os.path.exists(path):
-            raise MapError(f"{path} is not a valid map directory")
+            raise ParseError(f"{path} is not a valid map directory")
         for i in os.listdir(path):
             i = path + i
             if not os.path.isdir(i) and not os.path.isfile(i):
-                raise MapError(f"{path} is not a valid map directory/file")
+                raise ParseError(f"{path} is not a valid map directory/file")
             if i.endswith(".txt"):
                 res.append(i)
             elif os.path.isdir(i):
