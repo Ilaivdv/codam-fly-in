@@ -1,5 +1,5 @@
 import pytest
-from src.config.map_settings import MapValidator, MapError
+from src.config.parsing import MapValidator, MapError
 
 def test_invalid_metadata() -> None:
     map = MapValidator()

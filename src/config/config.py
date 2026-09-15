@@ -1,5 +1,5 @@
 from pydantic import BaseModel, PrivateAttr, ConfigDict
-from .map_settings import MapSelector, MapError
+from .parsing import MapSelector, MapError
 from colorama import Fore
 from argparse import Namespace, ArgumentParser
 from typing import Any

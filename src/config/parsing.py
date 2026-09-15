@@ -163,7 +163,7 @@ class MapValidator(BaseModel):
         return self._map
 
 
-class MapSelector(BaseModel):
+class MapSelector(BaseModel):  ## TODO Move this class to a more fitting place
     _map_options: list[str] = PrivateAttr()
     _map_validator: MapValidator = MapValidator()
 

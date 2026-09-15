@@ -24,6 +24,9 @@ class Map:
         for i in range(1, nb_drones + 1):
             self.drones[i] = Drone(id=i)
 
+    def map_distances(self) -> None:
+        ...
+
 
 class Connection:
     def __init__(self, path: tuple[Zone, Zone], capacity: int) -> None:
@@ -48,7 +51,7 @@ class Zone:
 
 class Drone:
 
-    # TODO Write pathfinding like a reverse dijkstra, from end to start
-    # Saving the distances to end hub whithin the zones
+    ## TODO Write pathfinding like a reverse dijkstra, from end to start
+    ## Saving the distances to end hub whithin the zones
     def __init__(self, id: int) -> None:
         self._id: int = id
