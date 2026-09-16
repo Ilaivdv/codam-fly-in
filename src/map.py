@@ -37,17 +37,13 @@ class Map:
     def map_distances(self) -> None:
         if not self.get_start_end_zones():
             raise MapError("couldn't get start and or end zones")
-        ...
 
-        # routes: list[list[Zone]] = [[self._end]]
-        # while (len(routes)):
-        #     for route in routes:
-        #         head: Zone = route[-1]
-        #         branches: list[Zone] = head.get_neighbors()
-        #         for branch in branches:
-        #             new_route = route.copy().append(branch)
-        #             if branch.type is ZoneType.START:
-                        # ...
+        routes: list[Zone] = self._end.get_neighbors_behind()
+        while (len(routes)):
+            for route in routes:
+                for branch in route.get_neighbors_behind():
+                    if branch.type is ZoneType.START:
+                        continue
 
     def get_start_end_zones(self) -> bool:
         if not self._start and not self._end:
@@ -74,7 +70,7 @@ class Zone:
 
         self.next_connections: list[Connection] = []
         self.prev_connections: list[Connection] = []
-        self.distance: int  # TODO Implement distance to end_hub
+        self.distance: int = 0
 
         self.type: ZoneType = ZoneType(type)
         self.rule: ZoneRule = ZoneRule.NORMAL
