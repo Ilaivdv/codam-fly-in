@@ -42,6 +42,7 @@ class Map:
         while (len(routes)):
             for route in routes:
                 for branch in route.get_neighbors_behind():
+                    branch.distance = route.distance + 1
                     if branch.type is ZoneType.START:
                         continue
 
