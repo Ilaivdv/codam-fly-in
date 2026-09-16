@@ -37,14 +37,17 @@ class Map:
     def map_distances(self) -> None:
         if not self.get_start_end_zones():
             raise MapError("couldn't get start and or end zones")
+        ...
 
-        routes: list[list[Zone]] = [[self._start]]
-        while (len(routes)):
-            for route in routes:
-                head: Zone = route[-1]
-                branches: list[Zone] = head.get_neighbors()
-                for branch in branches:
-                    new_route = route.copy().append(branch)
+        # routes: list[list[Zone]] = [[self._end]]
+        # while (len(routes)):
+        #     for route in routes:
+        #         head: Zone = route[-1]
+        #         branches: list[Zone] = head.get_neighbors()
+        #         for branch in branches:
+        #             new_route = route.copy().append(branch)
+        #             if branch.type is ZoneType.START:
+                        # ...
 
     def get_start_end_zones(self) -> bool:
         if not self._start and not self._end:
@@ -58,24 +61,34 @@ class Map:
 
 
 class Connection:
-    def __init__(self, path: tuple[Zone, Zone], capacity: int) -> None:
-        self.path: tuple[Zone, Zone] = path
+    def __init__(self, capacity: int, to_zone: Zone) -> None:
         self.capacity: int = capacity
+        self.to: Zone = to_zone
 
 
 class Zone:
-    def __init__(self, type: str, pos: tuple[int, ...]) -> None:
-        self.connections: list[Connection] = []
-        self.type: ZoneType = ZoneType(type)
-        self.pos: tuple[int, ...] = pos
-        self.rule: ZoneRule = ZoneRule.NORMAL
-        self.color: str = "gray"
+    def __init__(self, type: str, pos: tuple[int, ...], parent: Map) -> None:
+        self._map: Map = parent
         self.max_drones: int = 1
+        self.color: str = "gray"
 
+        self.next_connections: list[Connection] = []
+        self.prev_connections: list[Connection] = []
         self.distance: int  # TODO Implement distance to end_hub
 
-    def get_neighbors(self) -> list[Zone]:
-        return [zone.path[1] for zone in self.connections]
+        self.type: ZoneType = ZoneType(type)
+        self.rule: ZoneRule = ZoneRule.NORMAL
+        self.pos: tuple[int, ...] = pos
+
+
+    def __str__(self) -> str:
+        return [k for k, v in self._map.zones.items() if v is self][0]
+
+    def get_neighbors_front(self) -> list[Zone]:
+        return [zone.to for zone in self.next_connections]
+
+    def get_neighbors_behind(self) -> list[Zone]:
+        return [zone.to for zone in self.prev_connections]
 
 
 class Drone:

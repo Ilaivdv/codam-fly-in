@@ -45,20 +45,24 @@ class MapValidator(BaseModel):
                         or not self._map.zones.get(match.group("n2")):
                     raise ParseError("found undefined connection(s)", line_count)
 
-                elif self._map.zones[match.group("n1")] in \
-                        self._map.zones[match.group("n2")].get_neighbors() \
-                        or match.group("n1") == match.group("n2"):
+                elif self._map.zones[match.group("n2")] in \
+                        self._map.zones[match.group(
+                            "n1")].get_neighbors_behind() \
+                                    or match.group("n1") == match.group("n2"):
                     raise ParseError("found duplicate connection", line_count)
                 try:
                     max_capacity: int = (int(match.group("metadata").split(
                                 '=', 1)[1].removesuffix(']'))
                                          if match.group("metadata") else 1)
 
-                    self._map.zones[match.group("n1")].connections.append(
-                            Connection(path=(
-                                self._map.zones[match.group("n1")],
-                                self._map.zones[match.group("n2")]),
-                                       capacity=max_capacity))
+                    self._map.zones[match.group("n1")].next_connections.append(
+                            Connection(capacity=max_capacity,
+                                       to_zone=self._map.zones[
+                                           match.group("n2")]))
+                    self._map.zones[match.group("n2")].prev_connections.append(
+                            Connection(capacity=max_capacity,
+                                       to_zone=self._map.zones[
+                                           match.group("n1")]))
 
                 except ValueError as e:
                     raise ParseError(e.__str__(), line_count)
@@ -151,7 +155,8 @@ class MapValidator(BaseModel):
                     # Initialize new zone and validate metadata
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(type=curr_key.group("zone"),
-                                           pos=tuple(map(int, coords)))
+                                           pos=tuple(map(int, coords)),
+                                           parent=self._map)
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
                     if not curr_key.group("metadata"):
