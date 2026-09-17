@@ -13,7 +13,7 @@ run: install
 	@uv run --quiet $(PY) -m src
 
 test:
-	@uv run pytest -v pytest
+	@uv run pytest -v tests
 
 help:
 	@uv run --quiet $(PY) -m src -h
