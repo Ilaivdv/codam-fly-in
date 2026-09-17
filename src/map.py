@@ -42,22 +42,33 @@ class Map:
         valid_routes: list[list[Zone]] = []
         while len(routes):
             for route in routes:
-                branches: list[Zone] = route[-1].get_neighbors_behind()
+                branches: list[Zone] = route[-1].get_neighbors_behind() + route[-1].get_neighbors_front()
                 for branch in branches:
+                    if branch in route:
+                        continue
                     new_route: list[Zone] = route.copy()
                     new_route.append(branch)
                     if branch.type is ZoneType.START:
                         valid_routes.append(new_route)
+                        # continue
                     elif branch.get_neighbors_behind():
                         routes.append(new_route)
+                    # branch.is_visited = True
                 routes.remove(route)
 
+        valid_routes.sort(key=len, reverse=True)
+        for route in valid_routes:
+            distance_from_end: int = 0
+            for node in route:
+                if node.distance > distance_from_end or node.distance <= -1:
+                    node.distance = distance_from_end
+                distance_from_end += 1
+
+        ## DEBUG
         for i in valid_routes:
             for j in i:
-                print(j.__str__(), end=', ')
-            print()
-        # print(routes[0][-1].get_neighbors_behind()[0])
-
+                print(f"{j.__str__()} distance: {j.distance}")
+            print("\n")
 
     def get_start_end_zones(self) -> bool:
         for zone in self.zones.values():
@@ -66,7 +77,6 @@ class Map:
             elif zone.type is ZoneType.END:
                 self._end = zone
         return bool(self._start and self._end)
-
 
 
 class Connection:
@@ -83,7 +93,7 @@ class Zone:
 
         self.next_connections: list[Connection] = []
         self.prev_connections: list[Connection] = []
-        self.distance: int = 0
+        self.distance: int = -1
 
         self.type: ZoneType = ZoneType(type)
         self.rule: ZoneRule = ZoneRule.NORMAL

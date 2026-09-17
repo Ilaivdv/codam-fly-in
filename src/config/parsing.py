@@ -86,7 +86,7 @@ class MapValidator:
                     case "color":
                         self._map.zones[current_zone].color = value
                     case "max_drones":
-                        try:
+                        try: ## TODO Ignore max_drones if zone is either start or end
                             max_drones: int = int(value)
                             if max_drones < 0:
                                 raise ParseError("invalid value in metadata",
