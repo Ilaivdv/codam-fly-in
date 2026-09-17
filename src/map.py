@@ -36,8 +36,9 @@ class Map:
 
     def map_distances(self) -> None:
         if not self.get_start_end_zones():
-            raise MapError("couldn't get start and or end zones")
+            raise MapError("couldn't get start and/or end zones")
 
+        # Go from end to start saving all routes that reach start_hub
         routes: list[list[Zone]] = [[self._end]]
         valid_routes: list[list[Zone]] = []
         while len(routes):
@@ -54,7 +55,7 @@ class Map:
                         routes.append(new_route)
                 routes.remove(route)
 
-        valid_routes.sort(key=len, reverse=True)
+        # Map distance to end on each zone overwriting if shorter one found
         for route in valid_routes:
             distance_from_end: int = 0
             for node in route:
@@ -62,14 +63,15 @@ class Map:
                     node.distance = distance_from_end
                 distance_from_end += 1
 
+        # Add 1 to distance price for each zone that has RESTRICTED rule
         for zone in self.zones.values():
             zone.distance += bool(zone.rule is ZoneRule.RESTRICTED)
 
         ## DEBUG
-        for i in valid_routes:
-            for j in i:
-                print(f"{j.__str__()} distance: {j.distance}")
-            print("\n")
+        # for i in valid_routes:
+        #     for j in i:
+        #         print(f"{j.__str__()} distance: {j.distance}")
+        #     print("\n")
 
     def get_start_end_zones(self) -> bool:
         for zone in self.zones.values():
