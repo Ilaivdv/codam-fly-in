@@ -17,9 +17,9 @@ class Config:
             if not self.map:
                 raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
                                 "invalid map configuration"))
-            self.start()
         except ParseError as e:
             print(e)
+        self.start()
 
     def start(self) -> None:
         self.map.map_distances()
@@ -32,6 +32,12 @@ class Config:
         _ = arg_parser.add_argument(
                 "-m", "--map_path",
                 help="Sets path to look for maps.",
+                default="maps/",
+                required=False)
+
+        _ = arg_parser.add_argument(
+                "-w", "--write-logs",
+                help="Write simulation results to file result.txt",
                 default="maps/",
                 required=False)
 
