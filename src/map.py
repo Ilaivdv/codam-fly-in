@@ -38,21 +38,31 @@ class Map:
         if not self.get_start_end_zones():
             raise MapError("couldn't get start and or end zones")
 
-        routes: list[Zone] = self._end.get_neighbors_behind()
+        routes: list[list[Zone]] = [[self._end]]
+        valid_routes: list[list[Zone]] = []
         while (len(routes)):
             for route in routes:
-                for branch in route.get_neighbors_behind():
-                    branch.distance = route.distance + 1
+                head: Zone = route[-1]
+                if not head.get_neighbors_behind():
+                    routes.remove(route)
+                    continue
+                for branch in head.get_neighbors_behind():
                     if branch.type is ZoneType.START:
-                        continue
+                        valid_routes.append(route.copy().append(branch))
+                    elif branch.get_neighbors_behind():
+                        routes.append(route.copy().append(branch))
+        for i in valid_routes:
+            for j in i:
+                print(j.__str__(), end=', ')
+            print()
+
 
     def get_start_end_zones(self) -> bool:
-        if not self._start and not self._end:
-            for zone in self.zones.values():
-                if zone.type is ZoneType.START:
-                    self._start = zone
-                elif zone.type is ZoneType.END:
-                    self._end = zone
+        for zone in self.zones.values():
+            if zone.type is ZoneType.START:
+                self._start = zone
+            elif zone.type is ZoneType.END:
+                self._end = zone
         return bool(self._start and self._end)
 
 

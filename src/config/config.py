@@ -1,4 +1,3 @@
-from pydantic import BaseModel, PrivateAttr, ConfigDict
 from argparse import Namespace, ArgumentParser
 from .parsing import MapSelector, ParseError
 from colorama import Fore
@@ -6,25 +5,24 @@ from typing import Any
 from src import Map
 
 
-class Config(BaseModel):
+class Config:
+    def __init__(self) -> None:
+        self._map_selector: MapSelector = MapSelector()
+        self.map: Map
+        self.args: Namespace = self._register_arguments()
 
-    # Setting arbitrary_types_allowed to allow custom classes as type hint
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    _map_selector: MapSelector = PrivateAttr(MapSelector())
-    args: Namespace | None = None
-    map: Map | None = None
-
-    def model_post_init(self, _: Any, /) -> None:
-        self.args = self._register_arguments()
         try:
-
             # Initialize map through option_select selected file
             self.map = self._map_selector.option_select(self.args.map_path)
             if not self.map:
                 raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
                                 "invalid map configuration"))
+            # self.start()
         except ParseError as e:
             print(e)
+
+    def start(self) -> None:
+        self.map.map_distances()
 
     def _register_arguments(self) -> Namespace:
         arg_parser = ArgumentParser(
