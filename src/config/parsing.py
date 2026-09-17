@@ -18,7 +18,7 @@ class ParseError(Exception):
 
 class MapValidator:
     def __init__(self) -> None:
-       self._map: Map = Map()
+        self._map: Map = Map()
 
     def validate_map(self, path: str) -> Map:
         valid_zones: list[str] = [i.value for i in ZoneType]
@@ -43,12 +43,13 @@ class MapValidator:
             else:  # Check for duplicate connections before appending
                 if not self._map.zones.get(match.group("n1")) \
                         or not self._map.zones.get(match.group("n2")):
-                    raise ParseError("found undefined connection(s)", line_count)
+                    raise ParseError("found undefined connection(s)",
+                                     line_count)
 
                 elif self._map.zones[match.group("n2")] in \
                         self._map.zones[match.group(
                             "n1")].get_neighbors() \
-                                    or match.group("n1") == match.group("n2"):
+                        or match.group("n1") == match.group("n2"):
                     raise ParseError("found duplicate connection", line_count)
                 try:
                     max_capacity: int = (int(match.group("metadata").split(
@@ -81,7 +82,7 @@ class MapValidator:
                 # Every saved key gets added to a list to check for duplicates
                 elif key in check_duplicate:
                     raise ParseError("found duplicate metadata value",
-                                   line_count)
+                                     line_count)
                 match key:
                     case "color":
                         self._map.zones[current_zone].color = value
@@ -90,7 +91,7 @@ class MapValidator:
                             max_drones: int = int(value)
                             if max_drones < 0:
                                 raise ParseError("invalid value in metadata",
-                                               line_count)
+                                                 line_count)
                             if self._map.zones[current_zone].type is\
                                     ZoneType.START or\
                                     self._map.zones[current_zone].type is\
@@ -124,15 +125,15 @@ class MapValidator:
             # Check if first option is nb_drones
             if not re.fullmatch(r"^nb_drones\s*:\s+\d+$", zones[0][0]):
                 raise ParseError("key 'nb_drones' is missing or incorrect",
-                               zones[0][1])
+                                 zones[0][1])
             else:
                 nb_drones: int = int(zones.pop(0)[0].split(':', 1)[1])
                 if nb_drones < 1:
                     raise ParseError("program can't run with 0 drones",
-                                   zones[0][1])
+                                     zones[0][1])
                 elif nb_drones > sys.maxsize:
                     raise ParseError("nb_drones exceeds systems max size",
-                                   zones[0][1])
+                                     zones[0][1])
 
                 # Initialize nb_drones
                 self._map.nb_drones = nb_drones

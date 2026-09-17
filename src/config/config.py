@@ -1,7 +1,6 @@
 from argparse import Namespace, ArgumentParser
 from .parsing import MapSelector, ParseError
 from colorama import Fore
-from typing import Any
 from src import Map
 
 
@@ -16,7 +15,7 @@ class Config:
             self.map = self._map_selector.option_select(self.args.map_path)
             if not self.map:
                 raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
-                                "invalid map configuration"))
+                                 "invalid map configuration"))
         except ParseError as e:
             print(e)
         self.start()

@@ -1,4 +1,4 @@
-from colorama import Back, Fore, Style
+from colorama import Fore
 
 
 WARNING = f"{Fore.YELLOW}[WARNING]{Fore.RESET}"
@@ -22,4 +22,4 @@ class Logs:
             with open("src/utils/logo.txt") as f:
                 self._logo = f.read()
 
-logger: Logs
+log: Logs

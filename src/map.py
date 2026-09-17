@@ -96,7 +96,6 @@ class Zone:
         self.rule: ZoneRule = ZoneRule.NORMAL
         self.pos: tuple[int, ...] = pos
 
-
     def __str__(self) -> str:
         return [k for k, v in self._map.zones.items() if v is self][0]
 
