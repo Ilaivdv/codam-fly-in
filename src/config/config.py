@@ -17,7 +17,7 @@ class Config:
             if not self.map:
                 raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
                                 "invalid map configuration"))
-            # self.start()
+            self.start()
         except ParseError as e:
             print(e)
 

@@ -40,21 +40,23 @@ class Map:
 
         routes: list[list[Zone]] = [[self._end]]
         valid_routes: list[list[Zone]] = []
-        while (len(routes)):
+        while len(routes):
             for route in routes:
-                head: Zone = route[-1]
-                if not head.get_neighbors_behind():
-                    routes.remove(route)
-                    continue
-                for branch in head.get_neighbors_behind():
+                branches: list[Zone] = route[-1].get_neighbors_behind()
+                for branch in branches:
+                    new_route: list[Zone] = route.copy()
+                    new_route.append(branch)
                     if branch.type is ZoneType.START:
-                        valid_routes.append(route.copy().append(branch))
+                        valid_routes.append(new_route)
                     elif branch.get_neighbors_behind():
-                        routes.append(route.copy().append(branch))
+                        routes.append(new_route)
+                routes.remove(route)
+
         for i in valid_routes:
             for j in i:
                 print(j.__str__(), end=', ')
             print()
+        # print(routes[0][-1].get_neighbors_behind()[0])
 
 
     def get_start_end_zones(self) -> bool:
