@@ -62,11 +62,14 @@ class Map:
                     node.distance = distance_from_end
                 distance_from_end += 1
 
+        for zone in self.zones.values():
+            zone.distance += bool(zone.rule is ZoneRule.RESTRICTED)
+
         ## DEBUG
-        # for i in valid_routes:
-        #     for j in i:
-        #         print(f"{j.__str__()} distance: {j.distance}")
-        #     print("\n")
+        for i in valid_routes:
+            for j in i:
+                print(f"{j.__str__()} distance: {j.distance}")
+            print("\n")
 
     def get_start_end_zones(self) -> bool:
         for zone in self.zones.values():
