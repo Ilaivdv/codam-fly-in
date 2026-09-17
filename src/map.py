@@ -105,8 +105,5 @@ class Zone:
 
 
 class Drone:
-
-    ## TODO Write pathfinding like a reverse dijkstra, from end to start
-    ## Saving the distances to end hub whithin the zones
     def __init__(self, id: int) -> None:
         self._id: int = id
