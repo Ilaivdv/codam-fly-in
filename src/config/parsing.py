@@ -47,7 +47,7 @@ class MapValidator:
 
                 elif self._map.zones[match.group("n2")] in \
                         self._map.zones[match.group(
-                            "n1")].get_neighbors_behind() \
+                            "n1")].get_neighbors() \
                                     or match.group("n1") == match.group("n2"):
                     raise ParseError("found duplicate connection", line_count)
                 try:
@@ -55,11 +55,11 @@ class MapValidator:
                                 '=', 1)[1].removesuffix(']'))
                                          if match.group("metadata") else 1)
 
-                    self._map.zones[match.group("n1")].next_connections.append(
+                    self._map.zones[match.group("n1")].connections.append(
                             Connection(capacity=max_capacity,
                                        to_zone=self._map.zones[
                                            match.group("n2")]))
-                    self._map.zones[match.group("n2")].prev_connections.append(
+                    self._map.zones[match.group("n2")].connections.append(
                             Connection(capacity=max_capacity,
                                        to_zone=self._map.zones[
                                            match.group("n1")]))

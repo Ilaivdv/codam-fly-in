@@ -42,7 +42,7 @@ class Map:
         valid_routes: list[list[Zone]] = []
         while len(routes):
             for route in routes:
-                branches: list[Zone] = route[-1].get_neighbors_behind() + route[-1].get_neighbors_front()
+                branches: list[Zone] = route[-1].get_neighbors()
                 for branch in branches:
                     if branch in route:
                         continue
@@ -50,10 +50,8 @@ class Map:
                     new_route.append(branch)
                     if branch.type is ZoneType.START:
                         valid_routes.append(new_route)
-                        # continue
-                    elif branch.get_neighbors_behind():
+                    elif branch.get_neighbors():
                         routes.append(new_route)
-                    # branch.is_visited = True
                 routes.remove(route)
 
         valid_routes.sort(key=len, reverse=True)
@@ -65,10 +63,10 @@ class Map:
                 distance_from_end += 1
 
         ## DEBUG
-        for i in valid_routes:
-            for j in i:
-                print(f"{j.__str__()} distance: {j.distance}")
-            print("\n")
+        # for i in valid_routes:
+        #     for j in i:
+        #         print(f"{j.__str__()} distance: {j.distance}")
+        #     print("\n")
 
     def get_start_end_zones(self) -> bool:
         for zone in self.zones.values():
@@ -91,8 +89,7 @@ class Zone:
         self.max_drones: int = 1
         self.color: str = "gray"
 
-        self.next_connections: list[Connection] = []
-        self.prev_connections: list[Connection] = []
+        self.connections: list[Connection] = []
         self.distance: int = -1
 
         self.type: ZoneType = ZoneType(type)
@@ -103,11 +100,8 @@ class Zone:
     def __str__(self) -> str:
         return [k for k, v in self._map.zones.items() if v is self][0]
 
-    def get_neighbors_front(self) -> list[Zone]:
-        return [zone.to for zone in self.next_connections]
-
-    def get_neighbors_behind(self) -> list[Zone]:
-        return [zone.to for zone in self.prev_connections]
+    def get_neighbors(self) -> list[Zone]:
+        return [zone.to for zone in self.connections if zone.to is not self]
 
 
 class Drone:
