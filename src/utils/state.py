@@ -17,4 +17,3 @@ class State(ABC):
     def __str__(self) -> str:
         """ Returns the name of the state. """
         return self.__class__.__name__
-
