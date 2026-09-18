@@ -1,7 +1,7 @@
 from argparse import Namespace, ArgumentParser
 from .parsing import MapSelector, ParseError
-from colorama import Fore
-from src import Map, Process
+from src.process import Process
+from src.map import Map
 
 
 class Config:
@@ -13,13 +13,12 @@ class Config:
         try:
             # Initialize map through option_select selected file
             self._map = self._map_selector.option_select(self.args.map_path)
-            if not self._map:
-                raise ParseError((f"\n{Fore.RED}Error{Fore.RESET}: "
-                                 "invalid map configuration"))
         except ParseError as e:
             print(e)
 
+        # After map is initialized with no errors, start process
         self._process: Process = Process(self._map)
+        self._process.start_process()
 
 
     def _register_arguments(self) -> Namespace:
