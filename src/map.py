@@ -57,9 +57,9 @@ class Map:
 
         ## DEBUG
         # for i in valid_routes:
+        #     print()
         #     for j in i:
         #         print(f"{j.__str__()} distance: {j.distance}")
-        #     print("\n")
 
     def get_start_end_zones(self) -> bool:
         for zone in self.zones.values():
