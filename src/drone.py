@@ -1,5 +1,5 @@
 from src.utils import State
-from src.map import Zone
+from src.zone import Zone
 
 
 class Drone:
@@ -8,7 +8,7 @@ class Drone:
 
     class StateNormal(State):
         def on_enter(self) -> None:
-            pass
+            ...
 
         def on_event(self, event: int) -> None:
             ...

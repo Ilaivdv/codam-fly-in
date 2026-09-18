@@ -1,5 +1,5 @@
+from src.config.parsing import MapSelector, ParseError
 from argparse import Namespace, ArgumentParser
-from .parsing import MapSelector, ParseError
 from src.process import Process
 from src.map import Map
 
