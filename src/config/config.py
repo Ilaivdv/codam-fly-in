@@ -18,7 +18,7 @@ class Config:
 
         # After map is initialized with no errors, start process
         self._process: Process = Process(self._map)
-        self._process.start_process()
+        self._process.process()
 
 
     def _register_arguments(self) -> Namespace:
