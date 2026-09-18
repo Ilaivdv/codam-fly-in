@@ -8,4 +8,4 @@ class Process:
     def process(self) -> None:
         self.map.init_drones(self.map.nb_drones)
         self.map.map_distances()
-
+        self.map.start_turn()

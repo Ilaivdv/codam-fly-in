@@ -1,4 +1,4 @@
-from src.zone import Zone, Connection, ZoneType, ZoneRule
+from src.zone import Zone, Connection, ZoneTypes, ZoneRules
 from colorama import Back, Fore, Style
 from src.map import Map
 import termios
@@ -22,7 +22,7 @@ class MapValidator:
         self._map: Map = Map()
 
     def validate_map(self, path: str) -> Map:
-        valid_zones: list[str] = [i.value for i in ZoneType]
+        valid_zones: list[str] = [i.value for i in ZoneTypes]
         valid_metadata: list[str] = ["color", "zone", "max_drones"]
 
         # Checks if path is readable and exists
@@ -94,9 +94,9 @@ class MapValidator:
                                 raise ParseError("invalid value in metadata",
                                                  line_count)
                             if self._map.zones[current_zone].type is\
-                                    ZoneType.START or\
+                                    ZoneTypes.START or\
                                     self._map.zones[current_zone].type is\
-                                    ZoneType.END:
+                                    ZoneTypes.END:
                                 ...  ## TODO Add warning log here later
                             self._map.zones[
                                     current_zone].max_drones = int(value)
@@ -104,7 +104,7 @@ class MapValidator:
                             raise ParseError(e.__str__(), line_count)
                     case "zone":
                         try:
-                            self._map.zones[current_zone].rule = ZoneRule(
+                            self._map.zones[current_zone].rule = ZoneRules(
                                     value)
                         except ValueError as e:
                             raise ParseError(e.__str__(), line_count)

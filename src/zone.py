@@ -1,13 +1,13 @@
 from enum import StrEnum
 
 
-class ZoneType(StrEnum):
+class ZoneTypes(StrEnum):
     START = "start_hub"
     HUB = "hub"
     END = "end_hub"
 
 
-class ZoneRule(StrEnum):
+class ZoneRules(StrEnum):
     NORMAL = "normal"
     BLOCKED = "blocked"
     RESTRICTED = "restricted"
@@ -29,8 +29,8 @@ class Zone:
         self.connections: list[Connection] = []
         self.distance: int = -1
 
-        self.type: ZoneType = ZoneType(type)
-        self.rule: ZoneRule = ZoneRule.NORMAL
+        self.type: ZoneTypes = ZoneTypes(type)
+        self.rule: ZoneRules = ZoneRules.NORMAL
         self.pos: tuple[int, ...] = pos
 
     def __str__(self) -> str:
