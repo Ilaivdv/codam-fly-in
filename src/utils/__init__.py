@@ -1,4 +1,4 @@
-from .log import log, Logs
+from .log import Logs
 from .state import State
 
-__all__ = ["log", "Logs", "State"]
+__all__ = ["Logs", "State"]

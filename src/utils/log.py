@@ -21,5 +21,3 @@ class Logs:
         if self.show_logs:
             with open("src/utils/logo.txt") as f:
                 self._logo = f.read()
-
-log: Logs

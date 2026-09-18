@@ -1,3 +1,4 @@
+from src.drone import Drone
 from colorama import Fore
 from enum import StrEnum
 
@@ -106,8 +107,3 @@ class Zone:
 
     def get_neighbors(self) -> list[Zone]:
         return [zone.to for zone in self.connections if zone.to is not self]
-
-
-class Drone:
-    def __init__(self, id: int) -> None:
-        self._id: int = id
