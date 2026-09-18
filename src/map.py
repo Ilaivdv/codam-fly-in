@@ -1,6 +1,6 @@
+from src.zone import Zone, ZoneRule, ZoneType
 from src.drone import Drone
 from colorama import Fore
-from enum import StrEnum
 
 
 class MapError(Exception):
@@ -8,19 +8,6 @@ class MapError(Exception):
 
     def __init__(self, msg: str) -> None:
         super().__init__(f"\n{Fore.RED}Error{Fore.RESET}: {msg}")
-
-
-class ZoneType(StrEnum):
-    START = "start_hub"
-    HUB = "hub"
-    END = "end_hub"
-
-
-class ZoneRule(StrEnum):
-    NORMAL = "normal"
-    BLOCKED = "blocked"
-    RESTRICTED = "restricted"
-    PRIORITY = "priority"
 
 
 class Map:
@@ -32,13 +19,13 @@ class Map:
         self._end: Zone
 
     def init_drones(self, nb_drones: int) -> None:
-        for i in range(1, nb_drones + 1):
-            self.drones[i] = Drone(id=i)
-
-    def map_distances(self) -> None:
         if not self.get_start_end_zones():
             raise MapError("couldn't get start and/or end zones")
 
+        for i in range(1, nb_drones + 1):
+            self.drones[i] = Drone(id=i, start_zone=self._start)
+
+    def map_distances(self) -> None:
         # Go from end to start saving all routes that reach start_hub
         routes: list[list[Zone]] = [[self._end]]
         valid_routes: list[list[Zone]] = []
@@ -81,29 +68,3 @@ class Map:
             elif zone.type is ZoneType.END:
                 self._end = zone
         return bool(self._start and self._end)
-
-
-class Connection:
-    def __init__(self, capacity: int, to_zone: Zone) -> None:
-        self.capacity: int = capacity
-        self.to: Zone = to_zone
-
-
-class Zone:
-    def __init__(self, type: str, pos: tuple[int, ...], parent: Map) -> None:
-        self._map: Map = parent
-        self.max_drones: int = 1
-        self.color: str = "gray"
-
-        self.connections: list[Connection] = []
-        self.distance: int = -1
-
-        self.type: ZoneType = ZoneType(type)
-        self.rule: ZoneRule = ZoneRule.NORMAL
-        self.pos: tuple[int, ...] = pos
-
-    def __str__(self) -> str:
-        return [k for k, v in self._map.zones.items() if v is self][0]
-
-    def get_neighbors(self) -> list[Zone]:
-        return [zone.to for zone in self.connections if zone.to is not self]

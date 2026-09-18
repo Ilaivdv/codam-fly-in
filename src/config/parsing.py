@@ -1,5 +1,6 @@
-from src import Map, Zone, Connection, ZoneType, ZoneRule
+from src.zone import Zone, Connection, ZoneType, ZoneRule
 from colorama import Back, Fore, Style
+from src.map import Map
 import termios
 import tty
 import sys
@@ -137,7 +138,6 @@ class MapValidator:
 
                 # Initialize nb_drones
                 self._map.nb_drones = nb_drones
-                self._map.init_drones(nb_drones)
 
             # Parse through zone configuration with strict regex pattern
             for line, line_count in zones:
@@ -160,11 +160,11 @@ class MapValidator:
 
                     # Initialize new zone and validate metadata
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
-                    curr_zone: Zone = Zone(type=curr_key.group("zone"),
-                                           pos=tuple(map(int, coords)),
-                                           parent=self._map)
-                    zone_names.append(curr_key.group("name"))
-                    self._map.zones[curr_key.group("name")] = curr_zone
+                    curr_zone: Zone = Zone(name=curr_key.group("name"),
+                                           type=curr_key.group("zone"),
+                                           pos=tuple(map(int, coords)))
+                    self._map.zones[curr_zone.name] = curr_zone
+                    zone_names.append(curr_zone.name)
 
                     if curr_key.group("metadata"):
                         validate_metadata(
