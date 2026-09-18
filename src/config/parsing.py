@@ -165,12 +165,12 @@ class MapValidator:
                                            parent=self._map)
                     zone_names.append(curr_key.group("name"))
                     self._map.zones[curr_key.group("name")] = curr_zone
-                    if not curr_key.group("metadata"):
-                        continue
-                    validate_metadata(
-                            curr_key.group("metadata")[1:-1].strip().split(
-                                ' ', 1),
-                            curr_key.group("name"), line_count)
+
+                    if curr_key.group("metadata"):
+                        validate_metadata(
+                                curr_key.group("metadata")[1:-1].strip().split(
+                                    ' ', 1),
+                                curr_key.group("name"), line_count)
         return self._map
 
 
