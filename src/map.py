@@ -14,9 +14,12 @@ class Map:
     def __init__(self) -> None:
         self.nb_drones: int
         self.drones: dict[int, Drone] = {}
+
         self.zones: dict[str, Zone] = {}
         self._start: Zone
         self._end: Zone
+
+        self.is_finished: bool = False
 
     def _init_start_end_zones(self) -> bool:
         for zone in self.zones.values():
@@ -75,7 +78,10 @@ class Map:
         #     for j in i:
         #         print(f"{j.__str__()} distance: {j.distance}")
 
-    def start_turn(self) -> None:
-        # Every drone decides its move one by one
+    def process_turn(self) -> None:
         for drone in self.drones.values():
+            # Every drone decides its move one by one
             drone.current_state.on_event()
+
+        self.is_finished: bool = all([i.current_state is i.states["finished"]
+                                      for i in self.drones.values()])

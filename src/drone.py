@@ -7,12 +7,12 @@ class Drone:
         self._id: int = id
         self.current_zone: Zone = start_zone
 
-        self._states: dict[str, State] = {
+        self.states: dict[str, State] = {
                 "normal": self.StateNormal(self),
                 "waiting": self.StateWaiting(self),
                 "finished": self.StateFinished(self),
                 }
-        self.current_state: State = self._states["normal"]
+        self.current_state: State = self.states["normal"]
 
     def _move_to_zone(self, to_zone: Zone) -> None:
         self.current_zone.drone_exited()
@@ -20,12 +20,12 @@ class Drone:
         self.current_zone.drone_entered()
         if to_zone.rule is ZoneRules.RESTRICTED:
             ## TODO Add log for drone being in connection
-            self.current_state = self._states["waiting"]
+            self.current_state = self.states["waiting"]
         elif to_zone.type is ZoneTypes.END:
-            self.current_state = self._states["finished"]
+            self.current_state = self.states["finished"]
 
         ## DEBUG
-        print(f"D{self._id}-{to_zone}")
+        # print(f"D{self._id}-{to_zone}")
 
     # Drone states
     class StateNormal(State):
@@ -57,7 +57,7 @@ class Drone:
                     case _:
                         pass
             if not next_zone:
-                self.parent.current_state = self.parent._states["waiting"]
+                self.parent.current_state = self.parent.states["waiting"]
             else:
                 self.parent._move_to_zone(next_zone)
 
@@ -70,7 +70,7 @@ class Drone:
 
         def on_event(self) -> None:
             ## TODO Add check for end_hub to finished state
-            self.parent.current_state = self.parent._states["normal"]
+            self.parent.current_state = self.parent.states["normal"]
             self.parent.current_state.on_event()
 
     class StateFinished(State):
@@ -78,7 +78,7 @@ class Drone:
             self.parent: Drone = parent
 
         def on_enter(self) -> None:
-            ...
+            pass
 
         def on_event(self) -> None:
-            ...
+            pass

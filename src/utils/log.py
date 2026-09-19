@@ -13,6 +13,6 @@ class Logs:
     def log_drone_action(self, action: str) -> None:
         self._current_turn += " " + action
 
-    def end_drones_turn(self) -> None:
+    def end_turn(self) -> None:
         self.turns.append(self._current_turn)
         self._current_turn = ""
