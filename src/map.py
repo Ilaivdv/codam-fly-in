@@ -78,10 +78,13 @@ class Map:
         #     for j in i:
         #         print(f"{j.__str__()} distance: {j.distance}")
 
-    def process_turn(self) -> None:
-        for drone in self.drones.values():
-            # Every drone decides its move one by one
-            drone.current_state.on_event()
+    def process(self) -> None:
+        self.init_drones(self.nb_drones)
+        self.map_distances()
+        while not self.is_finished:
+            # Process every drones move one by one
+            for drone in self.drones.values():
+                drone.current_state.on_event()
 
-        self.is_finished: bool = all([i.current_state is i.states["finished"]
-                                      for i in self.drones.values()])
+            self.is_finished = all([i.current_state is i.states["finished"]
+                                          for i in self.drones.values()])

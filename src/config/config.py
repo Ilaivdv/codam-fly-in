@@ -1,6 +1,5 @@
-from src.config.parsing import MapSelector, ParseError
+from src.config.parsing import MapSelector
 from argparse import Namespace, ArgumentParser
-from src.process import Process
 from src.map import Map
 
 
@@ -11,14 +10,11 @@ class Config:
         self.args: Namespace = self._register_arguments()
 
         try:
-            # Initialize map through option_select selected file
+            # Initialize map and process it before visualization
             self._map = self._map_selector.option_select(self.args.map_path)
-        except ParseError as e:
+            self._map.process()
+        except Exception as e:
             print(e)
-
-        # After map is initialized with no errors, start process
-        self._process: Process = Process(self._map)
-        self._process.process()
 
     def _register_arguments(self) -> Namespace:
         arg_parser = ArgumentParser(
