@@ -1,5 +1,5 @@
 from src.zone import Zone, ZoneRules, ZoneTypes
-from src.drone import Drone, DroneActions
+from src.drone import Drone
 from colorama import Fore
 
 
@@ -73,5 +73,6 @@ class Map:
         #         print(f"{j.__str__()} distance: {j.distance}")
 
     def start_turn(self) -> None:
+        # Every drone decides its move one by one
         for drone in self.drones.values():
-            drone.current_state.on_event(DroneActions.ADVANCE)
+            drone.current_state.on_event()

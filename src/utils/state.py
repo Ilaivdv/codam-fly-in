@@ -10,7 +10,7 @@ class State(ABC):
         pass
 
     @abstractmethod
-    def on_event(self, event: int) -> None:
+    def on_event(self) -> None:
         """ Handle events for current state. """
         pass
 

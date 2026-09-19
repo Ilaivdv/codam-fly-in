@@ -1,4 +1,12 @@
+from colorama import Fore
 from enum import StrEnum
+
+
+class ZoneError(Exception):
+    """ Zone error for verbosity """
+
+    def __init__(self, msg: str, line: int = 0) -> None:
+        super().__init__(f"\n{Fore.RED}Zone error{Fore.RESET}: {msg}")
 
 
 class ZoneTypes(StrEnum):
@@ -24,6 +32,7 @@ class Zone:
     def __init__(self, name: str, type: str, pos: tuple[int, ...]) -> None:
         self.name: str = name
         self.max_drones: int = 1
+        self.drone_amount: int = 0
         self.color: str = "gray"
 
         self.connections: list[Connection] = []
@@ -38,3 +47,8 @@ class Zone:
 
     def get_neighbors(self) -> list[Zone]:
         return [zone.to for zone in self.connections if zone.to is not self]
+
+    def drone_entered(self) -> None:
+        self.drone_amount += 1
+        if self.drone_amount > self.max_drones:
+            raise ZoneError(f"'{self.__str__()}' exceeded max capacity")
