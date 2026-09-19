@@ -1,5 +1,5 @@
+from src.zone import Zone, ZoneRules, ZoneTypes
 from src.utils import State
-from src.zone import Zone, ZoneRules
 
 
 class Drone:
@@ -10,16 +10,22 @@ class Drone:
         self._states: dict[str, State] = {
                 "normal": self.StateNormal(self),
                 "waiting": self.StateWaiting(self),
+                "finished": self.StateFinished(self),
                 }
         self.current_state: State = self._states["normal"]
 
-    def advance_to_zone(self, to_zone: Zone) -> None:
+    def _move_to_zone(self, to_zone: Zone) -> None:
         self.current_zone.drone_exited()
         self.current_zone = to_zone
         self.current_zone.drone_entered()
         if to_zone.rule is ZoneRules.RESTRICTED:
             ## TODO Add log for drone being in connection
             self.current_state = self._states["waiting"]
+        elif to_zone.type is ZoneTypes.END:
+            self.current_state = self._states["finished"]
+
+        ## DEBUG
+        print(f"D{self._id}-{to_zone}")
 
     # Drone states
     class StateNormal(State):
@@ -53,9 +59,21 @@ class Drone:
             if not next_zone:
                 self.parent.current_state = self.parent._states["waiting"]
             else:
-                self.parent.advance_to_zone(next_zone)
+                self.parent._move_to_zone(next_zone)
 
     class StateWaiting(State):
+        def __init__(self, parent: Drone) -> None:
+            self.parent: Drone = parent
+
+        def on_enter(self) -> None:
+            ...
+
+        def on_event(self) -> None:
+            ## TODO Add check for end_hub to finished state
+            self.parent.current_state = self.parent._states["normal"]
+            self.parent.current_state.on_event()
+
+    class StateFinished(State):
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
 

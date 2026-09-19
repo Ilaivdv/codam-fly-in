@@ -18,20 +18,23 @@ class Map:
         self._start: Zone
         self._end: Zone
 
-    def _get_start_end_zones(self) -> bool:
+    def _init_start_end_zones(self) -> bool:
         for zone in self.zones.values():
             if zone.type is ZoneTypes.START:
+                zone.max_drones = self.nb_drones
                 self._start = zone
             elif zone.type is ZoneTypes.END:
+                zone.max_drones = self.nb_drones
                 self._end = zone
         return bool(self._start and self._end)
 
     def init_drones(self, nb_drones: int) -> None:
-        if not self._get_start_end_zones():
+        if not self._init_start_end_zones():
             raise MapError("couldn't get start and/or end zones")
 
         for i in range(1, nb_drones + 1):
             self.drones[i] = Drone(id=i, start_zone=self._start)
+        self._start.drone_amount = self.nb_drones
 
     def map_distances(self) -> None:
         # Go from end to start saving all routes that reach start_hub

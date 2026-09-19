@@ -20,7 +20,6 @@ class Config:
         self._process: Process = Process(self._map)
         self._process.process()
 
-
     def _register_arguments(self) -> Namespace:
         arg_parser = ArgumentParser(
                 prog="python -m src",
