@@ -52,3 +52,8 @@ class Zone:
         self.drone_amount += 1
         if self.drone_amount > self.max_drones:
             raise ZoneError(f"'{self.__str__()}' exceeded max capacity")
+
+    def drone_exited(self) -> None:
+        self.drone_amount -= 1
+        if self.drone_amount < 0:
+            raise ZoneError(f"'{self.__str__()}' is holding negative drones")
