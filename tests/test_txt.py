@@ -1,4 +1,4 @@
-from src.config.parsing import MapValidator, ParseError
+from src.parsing import MapValidator, ParseError
 import pytest
 
 def test_invalid_metadata() -> None:
