@@ -48,8 +48,9 @@ class MapValidator:
                                      line_count)
 
                 elif self._map.zones[match.group("n2")] in \
-                        self._map.zones[match.group(
-                            "n1")].get_neighbors() \
+                        [i.get_current_zone() for i
+                         in self._map.zones[match.group(
+                            "n1")].get_neighbors()] \
                         or match.group("n1") == match.group("n2"):
                     raise ParseError("found duplicate connection", line_count)
                 try:
