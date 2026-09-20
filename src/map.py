@@ -95,9 +95,10 @@ class Map:
             self.logs.end_turn()
 
             ## TODO REMOVE LATER
-            if self.logs.debug:
-                print(self.logs.turns_debug[-1])
-            print(self.logs.turns[-1], end="\n\n")
+            if len(self.logs.turns[-1]):
+                if self.logs.debug:
+                    print(self.logs.turns_debug[-1])
+                print(self.logs.turns[-1], end="\n\n")
 
             # Check if all drones are done at the end of each turn
             self.is_finished = all([i.current_state is i.states["finished"]

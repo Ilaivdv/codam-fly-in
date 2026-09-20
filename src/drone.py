@@ -40,9 +40,6 @@ class Drone:
 
         self.logs.log_drone_action(f"D{self._id}-{self.current_node.__str__()}")
 
-
-        # print(f"D{self._id}-{self.current_node.__str__()}")  ## DEBUG
-
     def next_state(self, to_state: State) -> None:
         self.current_state = to_state
         self.current_state.on_enter()
