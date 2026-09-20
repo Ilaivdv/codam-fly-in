@@ -36,6 +36,7 @@ class Zone:
         self.color: str = "gray"
 
         self.connections: list[Connection] = []
+        self.valid_zones: set[Zone]
         self.distance: int = -1
 
         self.type: ZoneTypes = ZoneTypes(type)
@@ -47,6 +48,10 @@ class Zone:
 
     def get_neighbors(self) -> list[Zone]:
         return [zone.to for zone in self.connections if zone.to is not self]
+
+    def get_valid_zone_points(self) -> list[Zone]:
+        return [zone.to for zone in self.connections if zone.to is not self
+                and zone.to in self.valid_zones]
 
     def drone_entered(self) -> None:
         self.drone_amount += 1

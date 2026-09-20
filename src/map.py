@@ -62,17 +62,21 @@ class Map:
         if not len(valid_routes):
             raise MapError("No available routes from start_hub to end_hub")
 
-        # Map distance to end on each zone overwriting if shorter one found
+        # Maps shortest distance from each zone to end and add zones to set
+        valid_nodes: set[Zone] = set()
+
         for route in valid_routes:
             distance_from_end: int = 0
             for node in route:
                 if node.distance > distance_from_end or node.distance <= -1:
                     node.distance = distance_from_end
+                    valid_nodes.add(node)
                 distance_from_end += 1
 
         # Add 1 to distance point for each restricted zone
         for zone in self.zones.values():
             zone.distance += bool(zone.rule is ZoneRules.RESTRICTED)
+            zone.valid_zones = valid_nodes
 
         ## DEBUG
         # for i in valid_routes:
@@ -88,6 +92,7 @@ class Map:
             for drone in self.drones.values():
                 drone.current_state.on_event()
             self.logs.end_turn()
+
             ## TODO REMOVE LATER
             if self.logs.debug:
                 print(self.logs.turns_debug[-1])

@@ -42,7 +42,7 @@ class Drone:
 
         def on_event(self) -> None:
             zones: list[Zone] = \
-                    sorted(self.parent.current_zone.get_neighbors(),
+                    sorted(self.parent.current_zone.get_valid_zone_points(),
                            key=lambda x: x.distance)
             next_zone: Zone | None = None
             for zone in zones:
@@ -54,7 +54,7 @@ class Drone:
                 ## TODO Add check for connection capacity in a turn
                 match zone.rule:
                     case ZoneRules.BLOCKED:
-                        if next_zone is zone:
+                        if zone is next_zone:
                             next_zone = None
                     case ZoneRules.PRIORITY:
                         next_zone = zone
