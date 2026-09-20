@@ -1,5 +1,6 @@
 from src.zone import Zone, ZoneRules, ZoneTypes
 from src.drone import Drone
+from src.utils import Logs
 from colorama import Fore
 
 
@@ -20,6 +21,7 @@ class Map:
         self._end: Zone
 
         self.is_finished: bool = False
+        self.logs: Logs
 
     def _init_start_end_zones(self) -> bool:
         for zone in self.zones.values():
@@ -36,7 +38,7 @@ class Map:
             raise MapError("couldn't get start and/or end zones")
 
         for i in range(1, nb_drones + 1):
-            self.drones[i] = Drone(id=i, start_zone=self._start)
+            self.drones[i] = Drone(id=i, start_zone=self._start, log=self.logs)
         self._start.drone_amount = self.nb_drones
 
     def map_distances(self) -> None:
@@ -85,7 +87,8 @@ class Map:
             # Process every drones move one by one
             for drone in self.drones.values():
                 drone.current_state.on_event()
-            ## TODO end log turn here
+            self.logs.end_turn()
+            print(self.logs.turns[-1])
 
             # Check if all drones are done at the end of each turn
             self.is_finished = all([i.current_state is i.states["finished"]

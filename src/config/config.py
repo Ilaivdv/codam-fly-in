@@ -10,14 +10,14 @@ class Config:
         self._map_selector: MapSelector = MapSelector()
         self._map: Map
         self.args: Namespace = self._register_arguments()
-        self.log: Logs = Logs(
+        self.logs: Logs = Logs(
                 write=self.args.write_logs,
                 debug=self.args.debug)
 
         try:
             # Initialize map and process it before visualization
             self._map = self._map_selector.option_select(self.args.map_path)
-            ## TODO Add logger to map
+            self._map.logs = self.logs
             self._map.process()
         except Exception as e:
             print(e)
@@ -29,13 +29,21 @@ class Config:
 
         _ = arg_parser.add_argument(
                 "-m", "--map_path",
-                help="Sets path to look for maps.",
+                help="Sets path to look for maps",
                 default="maps/",
                 required=False)
 
         _ = arg_parser.add_argument(
                 "-w", "--write_logs",
                 help="Write simulation results to file simulation_results.txt",
+                action="store_true",
+                required=False)
+
+        _ = arg_parser.add_argument(
+                "-d", "--debug",
+                help=("Adds useful debug info and writes it if"
+                      "--write_logs is enabled "
+                      "(live output only supported for terminal mode)"),
                 action="store_true",
                 required=False)
 

@@ -1,12 +1,13 @@
 from src.zone import Zone, ZoneRules, ZoneTypes
-from src.utils import State
+from src.utils import State, Logs
 
 
 class Drone:
-    def __init__(self, id: int, start_zone: Zone) -> None:
+    def __init__(self, id: int, start_zone: Zone, log: Logs) -> None:
         self._id: int = id
         self.current_zone: Zone = start_zone
 
+        self.logs: Logs = log
         self.states: dict[str, State] = {
                 "normal": self.StateNormal(self),
                 "waiting": self.StateWaiting(self),
@@ -21,11 +22,10 @@ class Drone:
         if to_zone.rule is ZoneRules.RESTRICTED:
             ## TODO Add log for drone being in connection
             self.current_state = self.states["waiting"]
-        elif to_zone.type is ZoneTypes.END:
+        else:
+            self.logs.log_drone_action(f"D{self._id}-{to_zone}")
+        if to_zone.type is ZoneTypes.END:
             self.current_state = self.states["finished"]
-
-        ## DEBUG
-        # print(f"D{self._id}-{to_zone}")
 
     # Drone states
     class StateNormal(State):

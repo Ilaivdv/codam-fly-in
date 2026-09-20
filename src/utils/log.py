@@ -14,5 +14,5 @@ class Logs:
         self._current_turn += " " + action
 
     def end_turn(self) -> None:
-        self.turns.append(self._current_turn)
+        self.turns.append(self._current_turn.strip())
         self._current_turn = ""
