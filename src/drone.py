@@ -5,7 +5,7 @@ from src.utils import State, Logs
 class Drone:
     def __init__(self, id: int, start_zone: Zone, log: Logs) -> None:
         self._id: int = id
-        self.current_zone: Node = start_zone
+        self.current_node: Node = start_zone
 
         self.logs: Logs = log
         self.states: dict[str, State] = {
@@ -16,9 +16,10 @@ class Drone:
         self.current_state: State = self.states["normal"]
 
     def _move_to_zone(self, to_zone: Zone) -> None:
-        self.current_zone.drone_exited()
-        self.current_zone = to_zone
-        self.current_zone.drone_entered()
+        self.current_node.drone_exited()
+        self.current_node = to_zone
+        self.current_node.drone_entered()
+
         if to_zone.rule is ZoneRules.RESTRICTED:
             self.logs.log_drone_action(f"D{self._id}-connection-{to_zone}")
             self.next_state(self.states["waiting"])
@@ -42,9 +43,9 @@ class Drone:
 
         def on_event(self) -> None:
             zones: list[Zone] = \
-                    sorted(self.parent.current_zone.get_valid_zone_points(),
+                    sorted(self.parent.current_node.get_valid_neighbors(),
                            key=lambda x: x.distance)
-            next_zone: Zone | None = None
+            next_zone: Node | None = None
             for zone in zones:
                 if not next_zone:
                     next_zone = zone

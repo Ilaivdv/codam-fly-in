@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from colorama import Fore
 from enum import StrEnum
 
-class ZoneError(Exception):
+class NodeError(Exception):
     """ Zone error for verbosity """
 
     def __init__(self, msg: str, line: int = 0) -> None:
@@ -36,19 +36,19 @@ class Node(ABC):
         ...
 
     @abstractmethod
-    def get_valid_zone_points(self) -> list[Zone]:
+    def get_valid_neighbors(self) -> list[Zone]:
         ...
 
     def drone_entered(self) -> None:
         self.drone_amount += 1
         if self.drone_amount > self.max_drones:
-            raise ZoneError((f"'{self.__str__()}' exceeded max capacity of "
+            raise NodeError((f"'{self.__str__()}' exceeded max capacity of "
                              f"{self.max_drones}"))
 
     def drone_exited(self) -> None:
         self.drone_amount -= 1
         if self.drone_amount < 0:
-            raise ZoneError(f"'{self.__str__()}' is holding negative drones")
+            raise NodeError(f"'{self.__str__()}' is holding negative drones")
 
 
 class Connection(Node):
@@ -64,8 +64,9 @@ class Connection(Node):
     def get_neighbors(self) -> list[Zone]:
         return [self.to]
 
-    def get_valid_zone_points(self) -> list[Zone]:
+    def get_valid_neighbors(self) -> list[Zone]:
         return [self.to]
+
 
 class Zone(Node):
     def __init__(self, name: str, type: str, pos: tuple[int, ...]) -> None:
@@ -86,6 +87,6 @@ class Zone(Node):
     def get_neighbors(self) -> list[Zone]:
         return [zone.to for zone in self.connections if zone.to is not self]
 
-    def get_valid_zone_points(self) -> list[Zone]:
+    def get_valid_neighbors(self) -> list[Zone]:
         return [zone.to for zone in self.connections if zone.to is not self
                 and zone.to in self.valid_zones]
