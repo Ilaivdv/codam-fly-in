@@ -1,4 +1,4 @@
-from src.config.parsing import MapSelector
+from src.parsing import MapSelector
 from argparse import Namespace, ArgumentParser
 from src.utils import Logs
 from src.map import Map
