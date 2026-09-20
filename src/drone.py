@@ -21,16 +21,24 @@ class Drone:
         self.current_zone.drone_entered()
         if to_zone.rule is ZoneRules.RESTRICTED:
             self.logs.log_drone_action(f"D{self._id}-connection-{to_zone}")
-            self.current_state = self.states["waiting"]
+            self.next_state(self.states["waiting"])
         else:
             self.logs.log_drone_action(f"D{self._id}-{to_zone}")
         if to_zone.type is ZoneTypes.END:
-            self.current_state = self.states["finished"]
+            self.next_state(self.states["finished"])
+
+    def next_state(self, to_state: State) -> None:
+        self.current_state = to_state
+        self.current_state.on_enter()
 
     # Drone states
     class StateNormal(State):
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
+
+        def on_enter(self) -> None:
+            self.parent.logs.log_debug((f"D{self.parent._id} entered state "
+                                        f"{self.__str__()}"))
 
         def on_event(self) -> None:
             zones: list[Zone] = \
@@ -54,7 +62,7 @@ class Drone:
                     case _:
                         pass
             if not next_zone:
-                self.parent.current_state = self.parent.states["waiting"]
+                self.parent.next_state(self.parent.states["waiting"])
             else:
                 self.parent._move_to_zone(next_zone)
 
@@ -62,14 +70,21 @@ class Drone:
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
 
+        def on_enter(self) -> None:
+            self.parent.logs.log_debug((f"D{self.parent._id} entered state "
+                                        f"{self.__str__()}"))
+
         def on_event(self) -> None:
             ## TODO Add check for end_hub to finished state
-            self.parent.current_state = self.parent.states["normal"]
+            self.parent.next_state(self.parent.states["normal"])
             self.parent.current_state.on_event()
 
     class StateFinished(State):
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
+
+        def on_enter(self) -> None:
+            self.parent.logs.log_debug(f"D{self.parent._id} is finished")
 
         def on_event(self) -> None:
             pass
