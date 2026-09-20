@@ -1,11 +1,11 @@
-from src.zone import Zone, ZoneRules, ZoneTypes
+from src.zone import Zone, ZoneRules, ZoneTypes, Node
 from src.utils import State, Logs
 
 
 class Drone:
     def __init__(self, id: int, start_zone: Zone, log: Logs) -> None:
         self._id: int = id
-        self.current_zone: Zone = start_zone
+        self.current_zone: Node = start_zone
 
         self.logs: Logs = log
         self.states: dict[str, State] = {

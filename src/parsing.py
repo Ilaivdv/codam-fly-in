@@ -58,11 +58,11 @@ class MapValidator:
                                          if match.group("metadata") else 1)
 
                     self._map.zones[match.group("n1")].connections.append(
-                            Connection(capacity=max_capacity,
+                            Connection(max_drones=max_capacity,
                                        to_zone=self._map.zones[
                                            match.group("n2")]))
                     self._map.zones[match.group("n2")].connections.append(
-                            Connection(capacity=max_capacity,
+                            Connection(max_drones=max_capacity,
                                        to_zone=self._map.zones[
                                            match.group("n1")]))
 
