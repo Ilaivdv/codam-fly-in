@@ -74,16 +74,21 @@ class Map:
                     valid_nodes.add(node)
                 distance_from_end += 1
 
-        # Add 1 to distance point for each restricted zone
+        # Add 1 to distance point for each restricted zone and add distances
+        # to connections
         for zone in self.zones.values():
             zone.distance += bool(zone.rule is ZoneRules.RESTRICTED)
             zone.valid_zones = valid_nodes
+            for connection in zone.connections:
+                connection.distance = connection.to.distance
+
 
         ## DEBUG
-        # for i in valid_routes:
-        #     print()
-        #     for j in i:
-        #         print(f"{j.__str__()} distance: {j.distance}")
+        for i in valid_routes:
+            print()
+            for j in i:
+                print(f"{j.__str__()} distance: {j.distance}")
+                print(f"{[k.distance for k in j.connections]}")
 
     def process(self) -> None:
         self.init_drones(self.nb_drones)

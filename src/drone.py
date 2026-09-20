@@ -28,6 +28,7 @@ class Drone:
             self.last_connection.drone_exited()
             self.last_connection = None
 
+        # When skipping connection, still enter to keep track of its capacity
         if skip_connection and type(to_node.parent) is Connection:
             to_zone: Zone = to_node.get_current_zone()
             self.current_node = to_zone
@@ -38,6 +39,7 @@ class Drone:
                 self.current_node.type is ZoneTypes.END:
             self.next_state(self.states["finished"])
 
+        # Add action to current turn
         self.logs.log_drone_action(
                 f"D{self._id}-{self.current_node.__str__()}")
 
