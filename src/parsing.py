@@ -65,7 +65,8 @@ class MapValidator:
                     self._map.zones[match.group("n2")].connections.append(
                             Connection(max_drones=max_capacity,
                                        to_zone=self._map.zones[
-                                           match.group("n1")]))
+                                           match.group("n1")],
+                                       behind=True))
 
                 except ValueError as e:
                     raise ParseError(e.__str__(), line_count)

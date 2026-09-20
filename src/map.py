@@ -50,7 +50,7 @@ class Map:
                 branches: list[Zone] = [i.get_current_zone() for i in
                                         route[-1].get_neighbors()]
                 for branch in branches:
-                    if branch in route:
+                    if branch in route or branch.rule is ZoneRules.BLOCKED:
                         continue
                     new_route: list[Zone] = route.copy()
                     new_route.append(branch)

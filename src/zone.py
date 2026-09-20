@@ -24,10 +24,10 @@ class ZoneRules(StrEnum):
 
 class Node(ABC):
     def __init__(self, parent: Zone | Connection, name: str,
-                 max_drones: int = 1) -> None:
+                 max_drones: int = 1, distance: int = -1) -> None:
         self.parent: Zone | Connection = parent
         self.name: str = name
-        self.distance: int = -1
+        self.distance: int = distance
 
         self.max_drones: int = max_drones
         self.drone_amount: int = 0
@@ -53,19 +53,28 @@ class Node(ABC):
             raise NodeError((f"'{self.__str__()}' exceeded max capacity of "
                              f"{self.max_drones}"))
 
+
+        # print(f"drone entered {self.__str__()}, capacity {self.drone_amount}")
+
     def drone_exited(self) -> None:
         self.drone_amount -= 1
         if self.drone_amount < 0:
             raise NodeError(f"'{self.__str__()}' is holding negative drones")
 
 
+        # print(f"drone exited from {self.__str__()}, capacity {self.drone_amount}")
+
+
 class Connection(Node):
-    def __init__(self, max_drones: int, to_zone: Zone) -> None:
+    def __init__(self, max_drones: int, to_zone: Zone,
+                 behind: bool = False) -> None:
         self.to: Zone = to_zone
+        self.is_behind: bool = behind
         super().__init__(
                 parent=self,
                 name=f"connection-{to_zone.__str__()}",
-                max_drones=max_drones)
+                max_drones=max_drones,
+                distance=self.to.distance)
 
     def __str__(self) -> str:
         return super().__str__()
@@ -99,7 +108,7 @@ class Zone(Node):
         return [node for node in self.connections if node.to is not self]
 
     def get_valid_neighbors(self) -> list[Node]:
-        return [node.to for node in self.connections if node.to is not self
+        return [node for node in self.connections if node.to is not self
                 and node.to in self.valid_zones]
 
     def get_current_zone(self) -> Zone:

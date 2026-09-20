@@ -24,10 +24,6 @@ class Drone:
         self.current_node = to_node
         self.current_node.drone_entered()
 
-        if type(to_node.parent) is Zone and \
-                to_node.parent.type is ZoneTypes.END:
-            self.next_state(self.states["finished"])
-
         if self.last_connection is not None:
             self.last_connection.drone_exited()
             self.last_connection = None
@@ -38,7 +34,14 @@ class Drone:
             self.current_node.drone_entered()
             self.last_connection = to_node.parent
 
+        if type(self.current_node) is Zone and \
+                self.current_node.type is ZoneTypes.END:
+            self.next_state(self.states["finished"])
+
         self.logs.log_drone_action(f"D{self._id}-{self.current_node.__str__()}")
+
+
+        # print(f"D{self._id}-{self.current_node.__str__()}")  ## DEBUG
 
     def next_state(self, to_state: State) -> None:
         self.current_state = to_state
@@ -59,8 +62,7 @@ class Drone:
                            key=lambda x: x.distance)
             next_node: Node | None = None
             for node in nodes:
-                if node == self.parent.last_node or \
-                        node.get_current_zone() == self.parent.last_node:
+                if type(node) is Connection and node.is_behind:
                     continue
                 if not next_node:
                     next_node = node
@@ -74,18 +76,18 @@ class Drone:
                             next_node = None
                             continue
                     case ZoneRules.PRIORITY:
-                        # Instantly go with this node if possible
-                        if node.drone_amount < node.max_drones and \
+                        # Go with this node if possible and not behind current
+                        if type(node) is Connection and node.is_behind:
+                            pass
+                        elif node.drone_amount < node.max_drones and \
                                 zone.drone_amount < zone.max_drones:
-                            self.parent._move_to_node(node)
-                            return
+                            next_node = node
+                            break
                     case _:
                         pass
                 
-                if node != next_node:
-                    pass
                 # Check if both zone and connection have enough capacity
-                elif next_node.drone_amount == next_node.max_drones and \
+                if next_node.drone_amount == next_node.max_drones or \
                         zone.drone_amount == zone.max_drones:
                     next_node = None
 
@@ -121,4 +123,6 @@ class Drone:
             self.parent.logs.log_debug(f"D{self.parent._id} is finished")
 
         def on_event(self) -> None:
-            pass
+            if self.parent.last_connection is not None:
+                self.parent.last_connection.drone_exited()
+                self.parent.last_connection = None
