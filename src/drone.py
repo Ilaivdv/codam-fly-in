@@ -32,9 +32,6 @@ class Drone:
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
 
-        def on_enter(self) -> None:
-            pass
-
         def on_event(self) -> None:
             zones: list[Zone] = \
                     sorted(self.parent.current_zone.get_neighbors(),
@@ -65,9 +62,6 @@ class Drone:
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
 
-        def on_enter(self) -> None:
-            ...
-
         def on_event(self) -> None:
             ## TODO Add check for end_hub to finished state
             self.parent.current_state = self.parent.states["normal"]
@@ -76,9 +70,6 @@ class Drone:
     class StateFinished(State):
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
-
-        def on_enter(self) -> None:
-            pass
 
         def on_event(self) -> None:
             pass
