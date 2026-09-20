@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from colorama import Fore
 from enum import StrEnum
 
+
 class NodeError(Exception):
     """ Zone error for verbosity """
 
@@ -53,16 +54,10 @@ class Node(ABC):
             raise NodeError((f"'{self.__str__()}' exceeded max capacity of "
                              f"{self.max_drones}"))
 
-
-        # print(f"drone entered {self.__str__()}, capacity {self.drone_amount}")
-
     def drone_exited(self) -> None:
         self.drone_amount -= 1
         if self.drone_amount < 0:
             raise NodeError(f"'{self.__str__()}' is holding negative drones")
-
-
-        # print(f"drone exited from {self.__str__()}, capacity {self.drone_amount}")
 
 
 class Connection(Node):
@@ -84,7 +79,7 @@ class Connection(Node):
 
     def get_valid_neighbors(self) -> list[Node]:
         return [self.to]
-    
+
     def get_current_zone(self) -> Zone:
         return self.to
 

@@ -38,7 +38,8 @@ class Drone:
                 self.current_node.type is ZoneTypes.END:
             self.next_state(self.states["finished"])
 
-        self.logs.log_drone_action(f"D{self._id}-{self.current_node.__str__()}")
+        self.logs.log_drone_action(
+                f"D{self._id}-{self.current_node.__str__()}")
 
     def next_state(self, to_state: State) -> None:
         self.current_state = to_state
@@ -50,8 +51,8 @@ class Drone:
             self.parent: Drone = parent
 
         def on_enter(self) -> None:
-            self.parent.logs.log_debug((f"D{self.parent._id} entered state "
-                                        f"{self.__str__()}"))
+            self.parent.logs.log_debug(
+                    f"D{self.parent._id} is in normal state")
 
         def on_event(self) -> None:
             nodes: list[Node] = \
@@ -82,7 +83,7 @@ class Drone:
                             break
                     case _:
                         pass
-                
+
                 # Check if both zone and connection have enough capacity
                 if next_node.drone_amount == next_node.max_drones or \
                         zone.drone_amount == zone.max_drones:
@@ -104,11 +105,9 @@ class Drone:
             self.parent: Drone = parent
 
         def on_enter(self) -> None:
-            self.parent.logs.log_debug((f"D{self.parent._id} entered state "
-                                        f"{self.__str__()}"))
+            self.parent.logs.log_debug(f"D{self.parent._id} is waiting")
 
         def on_event(self) -> None:
-            ## TODO Add check for end_hub to finished state
             self.parent.next_state(self.parent.states["normal"])
             self.parent.current_state.on_event()
 
