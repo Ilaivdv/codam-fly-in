@@ -92,4 +92,4 @@ class Map:
 
             # Check if all drones are done at the end of each turn
             self.is_finished = all([i.current_state is i.states["finished"]
-                                          for i in self.drones.values()])
+                                    for i in self.drones.values()])
