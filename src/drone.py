@@ -20,7 +20,7 @@ class Drone:
         self.current_zone = to_zone
         self.current_zone.drone_entered()
         if to_zone.rule is ZoneRules.RESTRICTED:
-            ## TODO Add log for drone being in connection
+            self.logs.log_drone_action(f"D{self._id}-connection-{to_zone}")
             self.current_state = self.states["waiting"]
         else:
             self.logs.log_drone_action(f"D{self._id}-{to_zone}")

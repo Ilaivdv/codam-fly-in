@@ -51,7 +51,8 @@ class Zone:
     def drone_entered(self) -> None:
         self.drone_amount += 1
         if self.drone_amount > self.max_drones:
-            raise ZoneError(f"'{self.__str__()}' exceeded max capacity")
+            raise ZoneError((f"'{self.__str__()}' exceeded max capacity of "
+                             f"{self.max_drones}"))
 
     def drone_exited(self) -> None:
         self.drone_amount -= 1
