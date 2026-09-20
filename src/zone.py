@@ -23,8 +23,12 @@ class ZoneRules(StrEnum):
 
 
 class Node(ABC):
-    def __init__(self, name: str, max_drones: int = 1) -> None:
+    def __init__(self, parent: Zone | Connection, name: str,
+                 max_drones: int = 1) -> None:
+        self.parent: Zone | Connection = parent
         self.name: str = name
+        self.distance: int = -1
+
         self.max_drones: int = max_drones
         self.drone_amount: int = 0
 
@@ -32,11 +36,15 @@ class Node(ABC):
         return self.name
 
     @abstractmethod
-    def get_neighbors(self) -> list[Zone]:
+    def get_neighbors(self) -> list[Node]:
         ...
 
     @abstractmethod
-    def get_valid_neighbors(self) -> list[Zone]:
+    def get_valid_neighbors(self) -> list[Node]:
+        ...
+
+    @abstractmethod
+    def get_current_zone(self) -> Zone:
         ...
 
     def drone_entered(self) -> None:
@@ -55,17 +63,21 @@ class Connection(Node):
     def __init__(self, max_drones: int, to_zone: Zone) -> None:
         self.to: Zone = to_zone
         super().__init__(
+                parent=self,
                 name=f"connection-{to_zone.__str__()}",
                 max_drones=max_drones)
 
     def __str__(self) -> str:
         return super().__str__()
 
-    def get_neighbors(self) -> list[Zone]:
+    def get_neighbors(self) -> list[Node]:
         return [self.to]
 
-    def get_valid_neighbors(self) -> list[Zone]:
+    def get_valid_neighbors(self) -> list[Node]:
         return [self.to]
+    
+    def get_current_zone(self) -> Zone:
+        return self.to
 
 
 class Zone(Node):
@@ -74,19 +86,21 @@ class Zone(Node):
 
         self.connections: list[Connection] = []
         self.valid_zones: set[Zone]
-        self.distance: int = -1
 
         self.type: ZoneTypes = ZoneTypes(type)
         self.rule: ZoneRules = ZoneRules.NORMAL
         self.pos: tuple[int, ...] = pos
-        super().__init__(name)
+        super().__init__(self, name)
 
     def __str__(self) -> str:
         return super().__str__()
 
-    def get_neighbors(self) -> list[Zone]:
-        return [zone.to for zone in self.connections if zone.to is not self]
+    def get_neighbors(self) -> list[Node]:
+        return [node for node in self.connections if node.to is not self]
 
-    def get_valid_neighbors(self) -> list[Zone]:
-        return [zone.to for zone in self.connections if zone.to is not self
-                and zone.to in self.valid_zones]
+    def get_valid_neighbors(self) -> list[Node]:
+        return [node.to for node in self.connections if node.to is not self
+                and node.to in self.valid_zones]
+
+    def get_current_zone(self) -> Zone:
+        return self

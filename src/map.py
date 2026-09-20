@@ -47,7 +47,8 @@ class Map:
         valid_routes: list[list[Zone]] = []
         while len(routes):
             for route in routes:
-                branches: list[Zone] = route[-1].get_neighbors()
+                branches: list[Zone] = [i.get_current_zone() for i in
+                                        route[-1].get_neighbors()]
                 for branch in branches:
                     if branch in route:
                         continue
