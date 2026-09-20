@@ -78,7 +78,7 @@ class MapValidator:
                 # Clean up and split metadata keys and values
                 key, value = i.replace(' ', '').split('=', 1)
                 if key not in valid_metadata:
-                    raise ParseError("found invalid metadata", line_count)
+                    raise ParseError("found invalid metadata key", line_count)
 
                 # Every saved key gets added to a list to check for duplicates
                 elif key in check_duplicate:
@@ -91,7 +91,7 @@ class MapValidator:
                         try:
                             max_drones: int = int(value)
                             if max_drones < 0:
-                                raise ParseError("invalid value in metadata",
+                                raise ParseError("invalid value in max_drones",
                                                  line_count)
                             if self._map.zones[current_zone].type is\
                                     ZoneTypes.START or\
@@ -169,7 +169,7 @@ class MapValidator:
                     if curr_key.group("metadata"):
                         validate_metadata(
                                 curr_key.group("metadata")[1:-1].strip().split(
-                                    ' ', 1),
+                                    ' '),
                                 curr_key.group("name"), line_count)
         return self._map
 
