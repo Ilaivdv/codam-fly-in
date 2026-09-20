@@ -12,7 +12,7 @@ class ParseError(Exception):
     """ Parse error for verbosity """
 
     def __init__(self, msg: str, line: int = 0) -> None:
-        super().__init__(f"\n{Fore.RED}Error" +
+        super().__init__(f"\n{Fore.RED}ParseError" +
                          (f" at line {line}" if line else '') +
                          f"{Fore.RESET}: {msg}")
 

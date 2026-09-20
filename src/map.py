@@ -8,7 +8,7 @@ class MapError(Exception):
     """ Map error for verbosity """
 
     def __init__(self, msg: str) -> None:
-        super().__init__(f"\n{Fore.RED}Error{Fore.RESET}: {msg}")
+        super().__init__(f"\n{Fore.RED}MapError{Fore.RESET}: {msg}")
 
 
 class Map:

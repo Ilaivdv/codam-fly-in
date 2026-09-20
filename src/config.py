@@ -4,7 +4,6 @@ from src.utils import Logs
 from src.map import Map
 
 
-## TODO Maybe move remove config directory and just move this outside
 class Config:
     def __init__(self) -> None:
         self._map_selector: MapSelector = MapSelector()
