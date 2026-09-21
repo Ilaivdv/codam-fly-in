@@ -173,6 +173,8 @@ class MapValidator:
                                 curr_key.group("metadata")[1:-1].strip().split(
                                     ' '),
                                 curr_key.group("name"), line_count)
+
+        self._map.validate_positions()  # Raises error on overlap
         return self._map
 
 

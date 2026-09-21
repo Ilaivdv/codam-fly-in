@@ -23,6 +23,15 @@ class Map:
         self.is_finished: bool = False
         self.logs: Logs
 
+    def validate_positions(self) -> None:
+        zones_pos: list[tuple[int, int]] = []
+        for k, v in self.zones.items():
+            if v.pos in zones_pos:
+                raise MapError((f"zone '{k.__str__()}' is overlapping with "
+                                f"another zone at position: {v.pos}"))
+            else:
+                zones_pos.append(v.pos)
+
     def _init_start_end_zones(self) -> bool:
         for zone in self.zones.values():
             if zone.type is ZoneTypes.START:
@@ -82,6 +91,7 @@ class Map:
             for connection in zone.connections:
                 connection.distance = connection.to.distance
 
+            self.logs.log_debug(f"{zone.__str__()} distance: {zone.distance}")
 
         ## DEBUG
         # for i in valid_routes:

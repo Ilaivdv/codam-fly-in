@@ -85,7 +85,7 @@ class Connection(Node):
 
 
 class Zone(Node):
-    def __init__(self, name: str, type: str, pos: tuple[int, ...]) -> None:
+    def __init__(self, name: str, type: str, pos: tuple[int, int]) -> None:
         self.color: str = "gray"
 
         self.connections: list[Connection] = []
@@ -93,7 +93,7 @@ class Zone(Node):
 
         self.type: ZoneTypes = ZoneTypes(type)
         self.rule: ZoneRules = ZoneRules.NORMAL
-        self.pos: tuple[int, ...] = pos
+        self.pos: tuple[int, int] = pos
         super().__init__(self, name)
 
     def __str__(self) -> str:

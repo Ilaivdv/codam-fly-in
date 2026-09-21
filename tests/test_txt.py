@@ -1,4 +1,5 @@
 from src.parsing import MapValidator, ParseError
+from src.map import MapError
 import pytest
 
 def test_invalid_metadata() -> None:
@@ -37,6 +38,9 @@ def test_invalid_numbers() -> None:
 
     with pytest.raises(ParseError):
         assert map.validate_map("tests/maps/invalid_connect_capacity.txt")
+
+    with pytest.raises(MapError):
+        assert map.validate_map("tests/maps/invalid_duplicate_coords.txt")
 
 
 def test_invalid_config() -> None:
