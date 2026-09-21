@@ -18,6 +18,9 @@ class TerminalRenderer(MapProcess):
 
         while True:
             print(f"\033c == {Fore.BLUE}Map Select{Fore.RESET} ==\n")
+            print(f" {Fore.LIGHTBLACK_EX}Enter - Select | Backspace - Go back")
+            print(f" {Fore.LIGHTBLACK_EX}←↓↑→/hjkl - Navigate | Q - Quit")
+            print(Style.RESET_ALL)
             for i, option in enumerate(files):
                 if i == selected:
                     print(f"{Fore.GREEN}> {Back.WHITE}{Fore.BLACK}{
