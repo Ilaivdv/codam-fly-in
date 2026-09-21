@@ -32,8 +32,8 @@ class TerminalRenderer(MapProcess):
                 case 'q':
                     print("\033c")
                     sys.exit()
-                case 'h' | "left" | '\x7f' | '\x08':  # Also check backspace and del
-                    # Go back a directory
+                case 'h' | "left" | '\x7f' | '\x08':
+                    # Go back a directory (also checks backspace and del)
                     return self.map_select(self.get_options(files[0].rsplit(
                         '/', 2)[0]))
                 case 'j' | "down":
@@ -49,7 +49,8 @@ class TerminalRenderer(MapProcess):
                 case 'l' | "right" | '\r' :
                     # If it's a file, return the validated map
                     if files[selected].endswith(".txt"):
-                        print("\033c")
+                        print(f"\033c{Fore.LIGHTBLACK_EX}" +
+                               f"Loading map...{Fore.RESET}\n\r", end="")
                         return self._map_validator.validate_map(
                                     files[selected])
                     else:
