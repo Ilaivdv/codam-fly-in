@@ -17,13 +17,12 @@ class TerminalRenderer(MapProcess):
         selected: int = 0
 
         while True:
-            print(f"\033c == {Fore.GREEN}Controls{Fore.RESET} ==\n")
-            print(f" {Fore.LIGHTBLACK_EX}Q - Quit")
-            print(f" ←↓↑→/hjkl - Navigate")
-            print(f" Enter - Select")
-            print(f" Backspace - Go back")
-            print(Style.RESET_ALL)
-            print(f" == {Fore.BLUE}Map Select{Fore.RESET} ==\n")
+            print((f"\033c == {Fore.GREEN}Controls{Fore.RESET} ==\n\n"
+                   f" {Fore.LIGHTBLACK_EX}Q - Quit |"
+                   " ←↓↑→/hjkl - Navigate |"
+                   " Enter - Select |"
+                   f" Backspace - Go back{Style.RESET_ALL}\n\n"
+                   f" == {Fore.BLUE}Map Select{Fore.RESET} ==\n"))
             for i, option in enumerate(files):
                 if i == selected:
                     print(f"{Fore.GREEN}> {Back.WHITE}{Fore.BLACK}{
