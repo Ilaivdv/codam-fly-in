@@ -63,6 +63,7 @@ class TerminalRenderer(MapProcess):
 
     def process_turn(self, auto_advance: bool) -> None:
         self._map.advance_turn()
+        ## TODO Work on colored output for turns
         if len(self._logs.turns[-1]):
             if self._logs.debug:
                 print(self._logs.turns_debug[-1])
