@@ -1,4 +1,5 @@
 from src.zone import Zone, Connection, ZoneTypes, ZoneRules
+from src.utils import Logs
 from colorama import Fore
 from src.map import Map
 import sys
@@ -16,8 +17,9 @@ class ParseError(Exception):
 
 
 class MapValidator:
-    def __init__(self) -> None:
-        self._map: Map = Map()
+    def __init__(self, logs: Logs) -> None:
+        self._map: Map = Map(logs)
+        self._logs: Logs = logs
 
     def validate_map(self, path: str) -> Map:
         valid_zones: list[str] = [i.value for i in ZoneTypes]

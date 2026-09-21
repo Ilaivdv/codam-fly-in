@@ -13,11 +13,10 @@ class TerminalRenderer(MapProcess):
         super().__init__(logs)
 
     def map_select(self, files: list[str]) -> Map:
+        print(self._logs.__str__())
         selected: int = 0
 
         while True:
-            _ = sys.stdout.write("\033[0;0H")
-            _ = sys.stdout.flush()
             print(f"\033c == {Fore.BLUE}Map Select{Fore.RESET} ==\n")
             for i, option in enumerate(files):
                 if i == selected:
@@ -47,6 +46,7 @@ class TerminalRenderer(MapProcess):
                 case 'l' | "right" | '\r' :
                     # If it's a file, return the validated map
                     if files[selected].endswith(".txt"):
+                        print("\033c")
                         return self._map_validator.validate_map(
                                     files[selected])
                     else:
@@ -59,6 +59,10 @@ class TerminalRenderer(MapProcess):
 
     def process_turn(self, auto_advance: bool) -> None:
         self._map.advance_turn()
+        if len(self._logs.turns[-1]):
+            if self._logs.debug:
+                print(self._logs.turns_debug[-1])
+            print(self._logs.turns[-1], end="\n\n")
         if not auto_advance:
             while True:
                 match self.on_input():

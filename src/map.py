@@ -12,7 +12,7 @@ class MapError(Exception):
 
 
 class Map:
-    def __init__(self) -> None:
+    def __init__(self, logs: Logs) -> None:
         self.nb_drones: int
         self.drones: dict[int, Drone] = {}
 
@@ -21,7 +21,7 @@ class Map:
         self._end: Zone
 
         self.is_finished: bool = False
-        self.logs: Logs
+        self.logs: Logs = logs
 
     def validate_positions(self) -> None:
         zones_pos: list[tuple[int, int]] = []
@@ -95,18 +95,11 @@ class Map:
             self.logs.log_debug(f"{zone.__str__()} distance: {zone.distance}")
 
     def advance_turn(self) -> None:
-        while not self.is_finished:
-            # Process every drones move one by one
-            for drone in self.drones.values():
-                drone.current_state.on_event()
-            self.logs.end_turn()
+        # Process every drones move one by one
+        for drone in self.drones.values():
+            drone.current_state.on_event()
+        self.logs.end_turn()
 
-            ## TODO REMOVE LATER
-            if len(self.logs.turns[-1]):
-                if self.logs.debug:
-                    print(self.logs.turns_debug[-1])
-                print(self.logs.turns[-1], end="\n\n")
-
-            # Check if all drones are done at the end of each turn
-            self.is_finished = all([i.current_state is i.states["finished"]
-                                    for i in self.drones.values()])
+        # Check if all drones are done at the end of each turn
+        self.is_finished = all([i.current_state is i.states["finished"]
+                                for i in self.drones.values()])
