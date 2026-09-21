@@ -2,10 +2,30 @@ from src.render.map_select import MapProcess
 from colorama import Back, Fore, Style
 from src.utils import Logs
 from src.map import Map
+from enum import StrEnum
 import termios
 import tty
 import sys
 import os
+
+
+class Colors(StrEnum):
+    MAROON = "\033[38;2;85;0;0m"
+    CRIMSON = "\033[38;2;220;20;60m"
+    RED = "\033[38;2;255;0;0m"
+    ORANGE = "\033[38;2;255;127;0m"
+    BROWN = "\033[38;2;210;105;30m"
+    GOLD = "\033[38;2;225;193;110m"
+    YELLOW = "\033[38;2;255;255;120m"
+    GREEN = "\033[38;2;0;255;143m"
+    BLUE = "\033[38;2;90;156;255m"
+    CYAN = "\033[38;2;0;230;255m"
+    VIOLET = "\033[38;2;127;0;255m"
+    PURPLE = "\033[38;2;128;0;128m"
+    WHITE = "\033[38;2;255;255;255m"
+    GRAY = "\033[38;2;90;90;90m"
+    BLACK = "\033[38;2;0;0;0m"
+    ## TODO Add rainbow function
 
 
 class TerminalRenderer(MapProcess):
@@ -17,7 +37,7 @@ class TerminalRenderer(MapProcess):
         selected: int = 0
 
         while True:
-            print((f"\033c == {Fore.GREEN}Controls{Fore.RESET} ==\n\n"
+            print((f"\033c{Fore.LIGHTBLACK_EX} == Controls == {Fore.RESET}\n\n"
                    f" {Fore.LIGHTBLACK_EX}Q - Quit |"
                    " ←↓↑→/hjkl - Navigate |"
                    " Enter - Select |"
@@ -69,7 +89,17 @@ class TerminalRenderer(MapProcess):
         if len(self._logs.turns[-1]):
             if self._logs.debug:
                 print(self._logs.turns_debug[-1])
-            print(self._logs.turns[-1], end="\n\n")
+            action: list[str] = self._logs.turns[-1].split(" ")
+            for i in action:
+                split: list[str] = i.split("-")
+                color: str = Colors.GRAY
+                try:
+                    color = Colors[self._map.zones[split[1]].color.upper()]
+                except Exception:
+                    pass
+                print(f"{Colors.GRAY}{split[0]}-{
+                      color}{split[1]}", end=" ")
+            print(Style.RESET_ALL)
         if not auto_advance:
             while True:
                 match self.on_input():
