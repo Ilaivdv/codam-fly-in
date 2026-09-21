@@ -3,10 +3,11 @@ from abc import ABC, abstractmethod
 from src.utils import Logs
 from src.map import Map
 from time import sleep
+from typing import Any
 import os
 
 
-class MapOptions(ABC):
+class MapProcess(ABC):
     def __init__(self, logs: Logs) -> None:
         self._map_validator: MapValidator = MapValidator()
         self._auto_advance_turns: bool = True
@@ -30,15 +31,12 @@ class MapOptions(ABC):
         return res
 
     def start_process(self, map_path: str, turn_delay: float = 0.5) -> None:
-        stop_process: bool = False
         self._map = self.map_select(self.get_options(map_path))
         self._map.logs = self._logs
 
-        while not self._map.is_finished or not stop_process:
-            self.process_turn()
-            if self._auto_advance_turns:
-                stop_process = self.on_input()
-            else:
+        while not self._map.is_finished:
+            self.process_turn(self._auto_advance_turns)
+            if not self._auto_advance_turns:
                 sleep(turn_delay)
 
     @abstractmethod
@@ -46,9 +44,9 @@ class MapOptions(ABC):
         ...
 
     @abstractmethod
-    def process_turn(self) -> None:
+    def process_turn(self, auto_advance: bool) -> None:
         ...
 
     @abstractmethod
-    def on_input(self) -> bool:
+    def on_input(self) -> Any:
         ...

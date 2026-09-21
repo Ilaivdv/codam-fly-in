@@ -1,8 +1,6 @@
 from src.zone import Zone, Connection, ZoneTypes, ZoneRules
-from colorama import Back, Fore, Style
+from colorama import Fore
 from src.map import Map
-import termios
-import tty
 import sys
 import os
 import re
@@ -177,85 +175,3 @@ class MapValidator:
         self._map.validate_positions()  # Raises error on overlap
         self._map.init_level()  # Raises pathfinding errors if there are any
         return self._map
-
-
-class MapSelector:  ## TODO Move this class to a more fitting place
-    def __init__(self) -> None:
-        self._map_options: list[str] = []
-        self._map_validator: MapValidator = MapValidator()
-
-    def _get_options(self, path: str) -> None:
-        path += '/' if not path.endswith('/') else ''
-        res: list[str] = []
-
-        if not os.path.isdir(path) and not os.path.exists(path):
-            raise ParseError(f"{path} is not a valid map directory")
-        for i in os.listdir(path):
-            i = path + i
-            if not os.path.isdir(i) and not os.path.isfile(i):
-                raise ParseError(f"{path} is not a valid map directory/file")
-            if i.endswith(".txt"):
-                res.append(i)
-            elif os.path.isdir(i):
-                res.append(i + '/')
-        self._map_options = res
-
-    def option_select(self, path: str) -> Map:
-        self._get_options(path)
-
-        def read_key() -> str:
-            original_settings = termios.tcgetattr(sys.stdin)
-            try:
-                _ = tty.setraw(sys.stdin.fileno())
-                key: str = sys.stdin.read(1)
-                if key == '\x1b':  # Escape sequence start
-                    # Read next two bytes to get escape sequence
-                    key += sys.stdin.read(2)
-                    key_map = {
-                        '\x1b[A': 'up',
-                        '\x1b[B': 'down',
-                        '\x1b[C': 'right',
-                        '\x1b[D': 'left'
-                    }
-                    return key_map.get(key, 'unknown')
-                return key
-            finally:
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN,
-                                  original_settings)
-
-        selected: int = 0
-        while True:
-            print("\033c -- Press Q to quit\n")
-            for i, option in enumerate(self._map_options):
-                if i == selected:
-                    print(Back.WHITE, Fore.BLACK, option, Style.RESET_ALL,
-                          sep='')
-                    continue
-                print(option)
-
-            match read_key():
-                case 'q':
-                    print("\033c")
-                    sys.exit()
-                case '\r' | "right":
-                    # If it's a file, return the validated map
-                    if self._map_options[selected].endswith(".txt"):
-                        return self._map_validator.validate_map(
-                                    self._map_options[selected])
-                    else:
-                        for f in os.listdir(self._map_options[selected]):
-                            if f.endswith(".txt"):
-                                return self.option_select(
-                                        self._map_options[selected])
-                case "left":
-                    # Go back a directory
-                    return self.option_select(self._map_options[0].rsplit(
-                        '/', 2)[0])
-                case "down":
-                    if selected < len(self._map_options) - 1:
-                        selected += 1
-                case "up":
-                    if selected > 0:
-                        selected -= 1
-                case _:
-                    pass

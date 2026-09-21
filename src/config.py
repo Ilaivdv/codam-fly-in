@@ -1,5 +1,5 @@
+from src.render import TerminalRenderer, PygameRenderer, MapProcess
 from argparse import Namespace, ArgumentParser
-from src.render import TerminalRenderer
 from src.utils import Logs
 
 
@@ -11,11 +11,17 @@ class Config:
                 debug=self.args.debug)
 
         try:
-            ...
+            self._start_render(self.args.terminal)
         except Exception as e:
             print(e)
 
-    # def _init_render(self, which: )
+    def _start_render(self, do_terminal: bool = False) -> None:
+        # TODO Add back in when pygame works
+        # renderer: MapProcess = TerminalRenderer(self.logs) if do_terminal \
+        #         else PygameRenderer(self.logs)
+        renderer: MapProcess = TerminalRenderer(self.logs)
+
+        renderer.start_process(self.args.map_path)
 
     def _register_arguments(self) -> Namespace:
         arg_parser = ArgumentParser(
@@ -39,6 +45,12 @@ class Config:
                 help=("Adds useful debug info and writes it if"
                       "--write_logs is enabled "
                       "(live output only supported for terminal mode)"),
+                action="store_true",
+                required=False)
+
+        _ = arg_parser.add_argument(
+                "-t", "--terminal",
+                help=("Switches to terminal output (default pygame)"),
                 action="store_true",
                 required=False)
 
