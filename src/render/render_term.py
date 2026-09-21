@@ -89,6 +89,7 @@ class TerminalRenderer(MapProcess):
         if len(self._logs.turns[-1]):
             if self._logs.debug:
                 print(self._logs.turns_debug[-1])
+
             action: list[str] = self._logs.turns[-1].split(" ")
             for i in action:
                 split: list[str] = i.split("-")
@@ -100,6 +101,8 @@ class TerminalRenderer(MapProcess):
                 print(f"{Colors.GRAY}{split[0]}-{
                       color}{split[1]}", end=" ")
             print(Style.RESET_ALL)
+
+        # Listen for next action
         if not auto_advance:
             while True:
                 match self.on_input():
@@ -109,6 +112,10 @@ class TerminalRenderer(MapProcess):
                         break
                     case _:
                         pass
+
+    def on_process_finished(self) -> None:
+        print(f"\n{Colors.GREEN}Simulation finished in {
+              len(self._logs.turns)} turns")
 
     def on_input(self) -> str:
         original_settings = termios.tcgetattr(sys.stdin)

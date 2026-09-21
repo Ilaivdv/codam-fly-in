@@ -38,6 +38,7 @@ class MapProcess(ABC):
             self.process_turn(self._auto_advance_turns)
             if not self._auto_advance_turns:
                 sleep(turn_delay)
+        self.on_process_finished()
 
     @abstractmethod
     def map_select(self, files: list[str]) -> Map:
@@ -45,6 +46,10 @@ class MapProcess(ABC):
 
     @abstractmethod
     def process_turn(self, auto_advance: bool) -> None:
+        ...
+
+    @abstractmethod
+    def on_process_finished(self) -> None:
         ...
 
     @abstractmethod
