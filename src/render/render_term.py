@@ -114,8 +114,8 @@ class TerminalRenderer(MapProcess):
                         pass
 
     def on_process_finished(self) -> None:
-        print(f"\n{Colors.GREEN}Simulation finished in {
-              len(self._logs.turns)} turns")
+        print(f"\n== {Colors.GREEN}Simulation finished in {
+              len(self._logs.turns)} turns{Style.RESET_ALL} ==")
 
     def on_input(self) -> str:
         original_settings = termios.tcgetattr(sys.stdin)
