@@ -62,11 +62,8 @@ class Drone:
                            key=lambda x: x.distance)
             next_node: Node | None = None
             for node in nodes:
-                if type(node) is Connection and node.is_behind:
-                    continue
                 if not next_node:
                     next_node = node
-
                 # Gets zone if current node is connection
                 zone: Zone = node.get_current_zone()
 
@@ -86,7 +83,10 @@ class Drone:
                     case _:
                         pass
 
-                # Check if both zone and connection have enough capacity
+                # First check when on selected node
+                if node != next_node:
+                    continue
+                # Then check if both current zone and connection have space
                 if next_node.drone_amount == next_node.max_drones or \
                         zone.drone_amount == zone.max_drones:
                     next_node = None
@@ -95,8 +95,8 @@ class Drone:
                 # Wait for the turn if no option is found
                 self.parent.next_state(self.parent.states["waiting"])
             else:
-                # If zone is restricted, stop at connection first
                 skip_connection: bool = True
+                # If zone is restricted, stop at connection first
                 if next_node.get_current_zone().rule is ZoneRules.RESTRICTED:
                     skip_connection = False
 

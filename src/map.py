@@ -84,11 +84,11 @@ class Map:
 
 
         ## DEBUG
-        for i in valid_routes:
-            print()
-            for j in i:
-                print(f"{j.__str__()} distance: {j.distance}")
-                print(f"{[k.distance for k in j.connections]}")
+        # for i in valid_routes:
+        #     print()
+        #     for j in i:
+        #         print(f"{j.__str__()} distance: {j.distance}")
+        #         print(f"{[k.distance for k in j.connections]}")
 
     def process(self) -> None:
         self.init_drones(self.nb_drones)
