@@ -64,7 +64,7 @@ class Drone:
 
             self.parent.logs.log_debug((f"D{self.parent._id} options: "
                                         f"{[i.__str__() + " " + str(
-                                        i.distance) for i in nodes]}"))
+                                         i.distance) for i in nodes]}"))
 
             for node in nodes:
                 if not next_node:

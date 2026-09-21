@@ -164,7 +164,8 @@ class MapValidator:
                     coords: list[str] = curr_key.group("coords").split(' ', 1)
                     curr_zone: Zone = Zone(name=curr_key.group("name"),
                                            type=curr_key.group("zone"),
-                                           pos=tuple(map(int, coords)))
+                                           pos=(int(coords[0]), int(coords[1])
+                                                ))
                     self._map.zones[curr_zone.name] = curr_zone
                     zone_names.append(curr_zone.name)
 

@@ -1,9 +1,10 @@
 from src.parsing import MapValidator, ParseError
+from src.utils import Logs
 from src.map import MapError
 import pytest
 
 def test_invalid_metadata() -> None:
-    map = MapValidator()
+    map = MapValidator(Logs())
 
     with pytest.raises(ParseError):
         assert map.validate_map("tests/maps/invalid_connect_metadata.txt")
@@ -16,7 +17,7 @@ def test_invalid_metadata() -> None:
 
 
 def test_invalid_numbers() -> None:
-    map = MapValidator()
+    map = MapValidator(Logs())
 
     with pytest.raises(ParseError):
         assert map.validate_map("tests/maps/invalid_0_drones.txt")
@@ -44,7 +45,7 @@ def test_invalid_numbers() -> None:
 
 
 def test_invalid_config() -> None:
-    map = MapValidator()
+    map = MapValidator(Logs())
 
     with pytest.raises(ParseError):
         assert map.validate_map("tests/maps/invalid_unordered.txt")
@@ -63,7 +64,7 @@ def test_invalid_config() -> None:
 
 
 def test_invalid_files() -> None:
-    map = MapValidator()
+    map = MapValidator(Logs())
 
     with pytest.raises(ParseError):
         assert map.validate_map("fake_directory/a.tx")
@@ -76,7 +77,7 @@ def test_invalid_files() -> None:
 
 
 def test_valid_config() -> None:
-    map = MapValidator()
+    map = MapValidator(Logs())
 
     assert map.validate_map("tests/maps/valid_small.txt") is not None
     assert map.validate_map("tests/maps/valid_small.txt") is not None
