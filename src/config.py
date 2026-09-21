@@ -1,25 +1,21 @@
-from src.parsing import MapSelector
 from argparse import Namespace, ArgumentParser
+from src.render import TerminalRenderer
 from src.utils import Logs
-from src.map import Map
 
 
 class Config:
     def __init__(self) -> None:
-        self._map_selector: MapSelector = MapSelector()
-        self._map: Map
         self.args: Namespace = self._register_arguments()
         self.logs: Logs = Logs(
                 write=self.args.write_logs,
                 debug=self.args.debug)
 
         try:
-            # Initialize map and process it before visualization
-            self._map = self._map_selector.option_select(self.args.map_path)
-            self._map.logs = self.logs
-            self._map.process()
+            ...
         except Exception as e:
             print(e)
+
+    # def _init_render(self, which: )
 
     def _register_arguments(self) -> Namespace:
         arg_parser = ArgumentParser(

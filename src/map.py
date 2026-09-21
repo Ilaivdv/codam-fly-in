@@ -32,6 +32,15 @@ class Map:
             else:
                 zones_pos.append(v.pos)
 
+    def init_level(self) -> None:
+        if not self._init_start_end_zones():
+            raise MapError("couldn't get start and/or end zones")
+
+        for i in range(1, self.nb_drones + 1):
+            self.drones[i] = Drone(id=i, start_zone=self._start, log=self.logs)
+        self._start.drone_amount = self.nb_drones
+        self.map_distances()
+
     def _init_start_end_zones(self) -> bool:
         for zone in self.zones.values():
             if zone.type is ZoneTypes.START:
@@ -41,14 +50,6 @@ class Map:
                 zone.max_drones = self.nb_drones
                 self._end = zone
         return bool(self._start and self._end)
-
-    def init_drones(self, nb_drones: int) -> None:
-        if not self._init_start_end_zones():
-            raise MapError("couldn't get start and/or end zones")
-
-        for i in range(1, nb_drones + 1):
-            self.drones[i] = Drone(id=i, start_zone=self._start, log=self.logs)
-        self._start.drone_amount = self.nb_drones
 
     def map_distances(self) -> None:
         # Go from end to start saving all routes that reach start_hub
@@ -93,16 +94,7 @@ class Map:
 
             self.logs.log_debug(f"{zone.__str__()} distance: {zone.distance}")
 
-        ## DEBUG
-        # for i in valid_routes:
-        #     print()
-        #     for j in i:
-        #         print(f"{j.__str__()} distance: {j.distance}")
-        #         print(f"{[k.distance for k in j.connections]}")
-
-    def process(self) -> None:
-        self.init_drones(self.nb_drones)
-        self.map_distances()
+    def advance_turn(self) -> None:
         while not self.is_finished:
             # Process every drones move one by one
             for drone in self.drones.values():

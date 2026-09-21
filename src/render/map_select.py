@@ -1,0 +1,54 @@
+from src.parsing import MapValidator, ParseError
+from abc import ABC, abstractmethod
+from src.utils import Logs
+from src.map import Map
+from time import sleep
+import os
+
+
+class MapOptions(ABC):
+    def __init__(self, logs: Logs) -> None:
+        self._map_validator: MapValidator = MapValidator()
+        self._auto_advance_turns: bool = True
+        self._map: Map
+        self._logs: Logs = logs
+
+    def get_options(self, path: str) -> list[str]:
+        path += '/' if not path.endswith('/') else ''
+        res: list[str] = []
+
+        if not os.path.isdir(path) and not os.path.exists(path):
+            raise ParseError(f"{path} is not a valid map directory")
+        for i in os.listdir(path):
+            i = path + i
+            if not os.path.isdir(i) and not os.path.isfile(i):
+                raise ParseError(f"{path} is not a valid map directory/file")
+            if i.endswith(".txt"):
+                res.append(i)
+            elif os.path.isdir(i):
+                res.append(i + '/')
+        return res
+
+    def start_process(self, map_path: str, turn_delay: float = 0.5) -> None:
+        stop_process: bool = False
+        self._map = self.map_select(self.get_options(map_path))
+        self._map.logs = self._logs
+
+        while not self._map.is_finished or not stop_process:
+            self.process_turn()
+            if self._auto_advance_turns:
+                stop_process = self.on_input()
+            else:
+                sleep(turn_delay)
+
+    @abstractmethod
+    def map_select(self, files: list[str]) -> Map:
+        ...
+
+    @abstractmethod
+    def process_turn(self) -> None:
+        ...
+
+    @abstractmethod
+    def on_input(self) -> bool:
+        ...

@@ -175,6 +175,7 @@ class MapValidator:
                                 curr_key.group("name"), line_count)
 
         self._map.validate_positions()  # Raises error on overlap
+        self._map.init_level()  # Raises pathfinding errors if there are any
         return self._map
 
 
