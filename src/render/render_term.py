@@ -49,8 +49,8 @@ class TerminalRenderer(MapProcess):
                 case 'l' | "right" | '\r':
                     # If it's a file, return the validated map
                     if files[selected].endswith(".txt"):
-                        print(f"\033c{Fore.LIGHTBLACK_EX}" +
-                              f"Loading map...{Fore.RESET}\n\r", end="")
+                        print(f"\n{Fore.LIGHTBLACK_EX}" +
+                              f" Loading map...{Fore.RESET}", end="")
                         return self._map_validator.validate_map(
                                     files[selected])
                     else:

@@ -32,6 +32,7 @@ class MapProcess(ABC):
 
     def start_process(self, map_path: str, turn_delay: float = 0.5) -> None:
         self._map = self.map_select(self.get_options(map_path))
+        print("\033c")
 
         while not self._map.is_finished:
             self.process_turn(self._auto_advance_turns)
