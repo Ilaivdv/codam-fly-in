@@ -109,7 +109,7 @@ class TerminalRenderer(MapProcess):
 
             action: list[str] = self._logs.turns[-1].split(" ")
             for i in action:
-                split: list[str] = i.split("-")
+                split: list[str] = i.split("-", maxsplit=1)
                 color: str = Colors.GRAY
                 try:
                     zone_color: str = self._map.zones[split[1]].color.upper()
