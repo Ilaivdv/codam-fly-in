@@ -86,6 +86,25 @@ class TerminalRenderer(MapProcess):
     def process_turn(self, auto_advance: bool) -> None:
         self._map.advance_turn()
         ## TODO Work on colored output for turns
+
+        def get_rainbow_text(text: str) -> str:
+            rainbow: list[Colors] = [
+                    Colors.RED,
+                    Colors.ORANGE,
+                    Colors.YELLOW,
+                    Colors.GREEN,
+                    Colors.CYAN,
+                    Colors.BLUE,
+                    Colors.PURPLE,
+                    Colors.VIOLET
+                    ]
+            color: int = 0
+            res: str = ""
+            for c in text:
+                res += rainbow[color] + c
+                color = (color + 1) % len(rainbow)
+            return res + Style.RESET_ALL
+
         if len(self._logs.turns[-1]):
             if self._logs.debug:
                 print(self._logs.turns_debug[-1])
@@ -95,12 +114,17 @@ class TerminalRenderer(MapProcess):
                 split: list[str] = i.split("-")
                 color: str = Colors.GRAY
                 try:
-                    color = Colors[self._map.zones[split[1]].color.upper()]
+                    zone_color: str = self._map.zones[split[1]].color.upper()
+                    if zone_color == "RAINBOW":
+                        print(f"{Colors.GRAY}{split[0]}-{
+                              get_rainbow_text(split[1])}", end=" ")
+                        continue
+                    color = Colors[zone_color]
                 except Exception:
                     pass
                 print(f"{Colors.GRAY}{split[0]}-{
                       color}{split[1]}", end=" ")
-            print(Style.RESET_ALL)
+            print(f"{Colors.GRAY}| T{len(self._logs.turns)}{Style.RESET_ALL}")
 
         # Listen for next action
         if not auto_advance:
