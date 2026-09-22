@@ -1,4 +1,4 @@
-from src.zone import Zone, ZoneRules, ZoneTypes, Connection, Node
+from src.node import Zone, ZoneRules, ZoneTypes, Connection, Node
 from src.utils import State, Logs
 
 

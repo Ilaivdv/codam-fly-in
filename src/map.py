@@ -1,4 +1,4 @@
-from src.zone import Zone, ZoneRules, ZoneTypes, Connection
+from src.node import Zone, ZoneRules, ZoneTypes, Connection
 from src.drone import Drone
 from src.utils import Logs
 from colorama import Fore

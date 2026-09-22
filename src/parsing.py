@@ -1,4 +1,4 @@
-from src.zone import Zone, Connection, ZoneTypes, ZoneRules
+from src.node import Zone, Connection, ZoneTypes, ZoneRules
 from src.utils import Logs
 from colorama import Fore
 from src.map import Map
