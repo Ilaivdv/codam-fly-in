@@ -77,7 +77,9 @@ class Drone:
 
             self.parent.logs.log_debug((f"D{self.parent._id} options: "
                                         f"{[i.__str__() + " " + str(
-                                         i.distance) for i in nodes]}"))
+                                         i.distance) for i in nodes
+                                        if type(i) is Connection
+                                        and not i.is_behind]}"))
 
             self.parent.pop_from_queue()
 
@@ -89,8 +91,10 @@ class Drone:
                 # Gets zone even if current node is connection
                 zone: Zone = node.get_current_zone()
 
+                # Restricted zones pass after wait time, zone will have space
                 if node.drone_amount == node.max_drones or \
-                        zone.drone_amount == zone.max_drones:
+                        zone.drone_amount == zone.max_drones and \
+                        not zone.rule is ZoneRules.RESTRICTED:
                     prev_node = node
                     continue
 
