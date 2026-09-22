@@ -8,9 +8,9 @@ import os
 
 
 class MapProcess(ABC):
-    def __init__(self, logs: Logs) -> None:
+    def __init__(self, logs: Logs, auto_advance: bool = True) -> None:
         self._map_validator: MapValidator = MapValidator(logs)
-        self._auto_advance_turns: bool = True
+        self._auto_advance_turns: bool = auto_advance
         self._logs: Logs = logs
         self._map: Map
 
@@ -30,13 +30,13 @@ class MapProcess(ABC):
                 res.append(i + '/')
         return res
 
-    def start_process(self, map_path: str, turn_delay: float = 0.5) -> None:
+    def start_process(self, map_path: str, turn_delay: float = 0.0) -> None:
         self._map = self.map_select(self.get_options(map_path))
         print("\033c")
 
         while not self._map.is_finished:
             self.process_turn(self._auto_advance_turns)
-            if not self._auto_advance_turns:
+            if self._auto_advance_turns:
                 sleep(turn_delay)
         self.on_process_finished()
 

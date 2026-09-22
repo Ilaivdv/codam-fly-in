@@ -29,8 +29,8 @@ class Colors(StrEnum):
 
 
 class TerminalRenderer(MapProcess):
-    def __init__(self, logs: Logs) -> None:
-        super().__init__(logs)
+    def __init__(self, logs: Logs, auto_advance: bool = True) -> None:
+        super().__init__(logs, auto_advance)
 
     def map_select(self, files: list[str]) -> Map:
         print(self._logs.__str__())
@@ -85,7 +85,6 @@ class TerminalRenderer(MapProcess):
 
     def process_turn(self, auto_advance: bool) -> None:
         self._map.advance_turn()
-        ## TODO Work on colored output for turns
 
         def get_rainbow_text(text: str) -> str:
             rainbow: list[Colors] = [
@@ -128,11 +127,14 @@ class TerminalRenderer(MapProcess):
 
         # Listen for next action
         if not auto_advance:
+            print(f"{Colors.GRAY}Waiting for input...{Style.RESET_ALL}")
             while True:
                 match self.on_input():
                     case 'q':
                         sys.exit()
                     case '\r':
+                        # Clear the temporary message first
+                        print("\x1b[1A\x1b[2K", end="")
                         break
                     case _:
                         pass

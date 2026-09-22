@@ -19,7 +19,7 @@ class Config:
         # TODO Add back in when pygame works
         # renderer: MapProcess = TerminalRenderer(self.logs) if do_terminal \
         #         else PygameRenderer(self.logs)
-        renderer: MapProcess = TerminalRenderer(self.logs)
+        renderer: MapProcess = TerminalRenderer(self.logs, self.args.no_auto)
 
         renderer.start_process(self.args.map_path)
 
@@ -34,6 +34,7 @@ class Config:
                 default="maps/",
                 required=False)
 
+        ## TODO Implement write logs
         _ = arg_parser.add_argument(
                 "-w", "--write_logs",
                 help="Write simulation results to file simulation_results.txt",
@@ -42,9 +43,9 @@ class Config:
 
         _ = arg_parser.add_argument(
                 "-d", "--debug",
-                help=("Adds useful debug info and writes it if"
+                help=("Adds useful debug info and writes it if "
                       "--write_logs is enabled "
-                      "(live output only supported for terminal mode)"),
+                      "(live debug output only supported for terminal mode)"),
                 action="store_true",
                 required=False)
 
@@ -52,6 +53,13 @@ class Config:
                 "-t", "--terminal",
                 help=("Switches to terminal output (default pygame)"),
                 action="store_true",
+                required=False)
+
+        _ = arg_parser.add_argument(
+                "-n", "--no_auto",
+                help=("Turns off auto advancing on turns waiting for input "
+                      "before continuing instead"),
+                action="store_false",
                 required=False)
 
         return arg_parser.parse_args()
