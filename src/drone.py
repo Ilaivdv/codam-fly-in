@@ -67,11 +67,11 @@ class Drone:
                                          i.distance) for i in nodes]}"))
 
             for node in nodes:
-                if not next_node:
-                    next_node = node
-                if next_node == self.parent.last_node:
-                    next_node = None
+                if type(node) is Connection and node.is_behind:
                     continue
+                elif not next_node:
+                    next_node = node
+
                 # Gets zone if current node is connection
                 zone: Zone = node.get_current_zone()
 
@@ -82,9 +82,7 @@ class Drone:
                             continue
                     case ZoneRules.PRIORITY:
                         # Go with this node if possible and not behind current
-                        if type(node) is Connection and node.is_behind:
-                            pass
-                        elif node.drone_amount < node.max_drones and \
+                        if node.drone_amount < node.max_drones and \
                                 zone.drone_amount < zone.max_drones:
                             next_node = node
                             break
