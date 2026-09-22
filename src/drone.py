@@ -69,42 +69,33 @@ class Drone:
             for node in nodes:
                 if type(node) is Connection and node.is_behind:
                     continue
-                elif not next_node:
-                    next_node = node
 
-                # Gets zone if current node is connection
+                # Gets zone even if current node is connection
                 zone: Zone = node.get_current_zone()
+
+                if node.drone_amount == node.max_drones or \
+                        zone.drone_amount == zone.max_drones:
+                    continue
 
                 match zone.rule:
                     case ZoneRules.BLOCKED:
-                        if node is next_node:
-                            next_node = None
-                            continue
+                        continue
                     case ZoneRules.PRIORITY:
-                        # Go with this node if possible and not behind current
-                        if node.drone_amount < node.max_drones and \
-                                zone.drone_amount < zone.max_drones:
-                            next_node = node
-                            break
+                        next_node = node
+                        break
                     case _:
                         pass
 
-                # First check when on selected node
-                if node != next_node:
-                    continue
-                # Then check if both current zone and connection have space
-                if next_node.drone_amount == next_node.max_drones or \
-                        zone.drone_amount == zone.max_drones:
-                    next_node = None
+                if not next_node:
+                    next_node = node
 
             if not next_node:
-                # Wait for the turn if no option is found
+                # Wait for the next turn if no option is found
                 self.parent.next_state(self.parent.states["waiting"])
             else:
-                skip_connection: bool = True
-                # If zone is restricted, stop at connection first
-                if next_node.get_current_zone().rule is ZoneRules.RESTRICTED:
-                    skip_connection = False
+                # Sets to False if next zone is restricted
+                skip_connection: bool = not next_node.get_current_zone().rule\
+                        is ZoneRules.RESTRICTED
 
                 self.parent._move_to_node(next_node, skip_connection)
 
