@@ -8,6 +8,7 @@ class Drone:
         self.current_node: Node = start_zone
         self.last_connection: Connection | None = None
         self.last_node: Node = start_zone
+        self._queued_zone: Zone | None = None
 
         self.logs: Logs = log
         self.states: dict[str, State] = {
@@ -47,6 +48,17 @@ class Drone:
         self.current_state = to_state
         self.current_state.on_enter()
 
+    def add_to_queue(self, zone: Zone) -> None:
+        if self._queued_zone:
+            return
+        self._queued_zone = zone
+        self._queued_zone.distance += 1
+
+    def pop_from_queue(self) -> None:
+        if type(self._queued_zone) is Zone:
+            self._queued_zone.distance -= 1
+        self._queued_zone = None
+
     # Drone states
     class StateNormal(State):
         def __init__(self, parent: Drone) -> None:
@@ -57,6 +69,7 @@ class Drone:
                     f"D{self.parent._id} is in normal state")
 
         def on_event(self) -> None:
+            # Valid neighbors are adjacent nodes that have a route to end_hub
             nodes: list[Node] = \
                     sorted(self.parent.current_node.get_valid_neighbors(),
                            key=lambda x: x.distance)
@@ -66,6 +79,9 @@ class Drone:
                                         f"{[i.__str__() + " " + str(
                                          i.distance) for i in nodes]}"))
 
+            self.parent.pop_from_queue()
+
+            prev_node: Node | None = None
             for node in nodes:
                 if type(node) is Connection and node.is_behind:
                     continue
@@ -75,6 +91,7 @@ class Drone:
 
                 if node.drone_amount == node.max_drones or \
                         zone.drone_amount == zone.max_drones:
+                    prev_node = node
                     continue
 
                 match zone.rule:
@@ -87,10 +104,13 @@ class Drone:
                         pass
 
                 if not next_node:
-                    next_node = node
+                    if prev_node and node.distance - prev_node.distance > 2:
+                        next_node = prev_node
+                        self.parent.add_to_queue(next_node.get_current_zone())
+                    else:
+                        next_node = node
 
-            if not next_node:
-                # Wait for the next turn if no option is found
+            if not next_node or self.parent._queued_zone:
                 self.parent.next_state(self.parent.states["waiting"])
             else:
                 # Sets to False if next zone is restricted
