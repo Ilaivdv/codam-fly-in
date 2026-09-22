@@ -25,7 +25,6 @@ class Colors(StrEnum):
     WHITE = "\033[38;2;255;255;255m"
     GRAY = "\033[38;2;90;90;90m"
     BLACK = "\033[38;2;0;0;0m"
-    ## TODO Add rainbow function
 
 
 class TerminalRenderer(MapProcess):
@@ -127,7 +126,8 @@ class TerminalRenderer(MapProcess):
 
         # Listen for next action
         if not auto_advance:
-            print(f"{Colors.GRAY}Waiting for input...{Style.RESET_ALL}")
+            print((f"{Colors.GRAY}| Enter to continue "
+                   f"| Q to quit |{Style.RESET_ALL}"))
             while True:
                 match self.on_input():
                     case 'q':
