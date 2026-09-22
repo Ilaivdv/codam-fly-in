@@ -91,7 +91,7 @@ class Drone:
                 # Gets zone even if current node is connection
                 zone: Zone = node.get_current_zone()
 
-                # Restricted zones pass after wait time, zone will have space
+                # Restricted zones pass because zone will have space after wait
                 if node.drone_amount == node.max_drones or \
                         zone.drone_amount == zone.max_drones and \
                         not zone.rule is ZoneRules.RESTRICTED:
