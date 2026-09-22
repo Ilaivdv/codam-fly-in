@@ -67,7 +67,7 @@ class Connection(Node):
         self.is_behind: bool = behind
         super().__init__(
                 parent=self,
-                name=f"connection>>{to_zone.__str__()}",
+                name=f"connection-{to_zone.__str__()}",
                 max_drones=max_drones,
                 distance=self.to.distance)
 

@@ -1,4 +1,4 @@
-from src.zone import Zone, ZoneRules, ZoneTypes
+from src.zone import Zone, ZoneRules, ZoneTypes, Connection
 from src.drone import Drone
 from src.utils import Logs
 from colorama import Fore
@@ -57,8 +57,12 @@ class Map:
         valid_routes: list[list[Zone]] = []
         while len(routes):
             for route in routes:
+                neighbors: list[Connection] = [i for i in
+                                               route[-1].get_neighbors() if
+                                               type(i) is Connection]
                 branches: list[Zone] = [i.get_current_zone() for i in
-                                        route[-1].get_neighbors()]
+                                        neighbors if i.is_behind]
+
                 for branch in branches:
                     if branch in route or branch.rule is ZoneRules.BLOCKED:
                         continue
@@ -74,21 +78,21 @@ class Map:
             raise MapError("No available routes from start_hub to end_hub")
 
         # Maps shortest distance from each zone to end and add zones to set
-        valid_nodes: set[Zone] = set()
+        valid_zones: set[Zone] = set()
 
         for route in valid_routes:
             distance_from_end: int = 0
             for node in route:
                 if node.distance > distance_from_end or node.distance <= -1:
                     node.distance = distance_from_end
-                    valid_nodes.add(node)
+                    valid_zones.add(node)
                 distance_from_end += 1
 
         # Add 1 to distance point for each restricted zone and add distances
-        # to connections
+        # to connections as well
         for zone in self.zones.values():
             zone.distance += bool(zone.rule is ZoneRules.RESTRICTED)
-            zone.valid_zones = valid_nodes
+            zone.valid_zones = valid_zones
             for connection in zone.connections:
                 connection.distance = connection.to.distance
 

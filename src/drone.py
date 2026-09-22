@@ -20,7 +20,7 @@ class Drone:
     def _move_to_node(self, to_node: Node,
                       skip_connection: bool = True) -> None:
         self.current_node.drone_exited()
-        self.last_node = self.current_node.get_current_zone()
+        self.last_node = self.current_node
         self.current_node = to_node
         self.current_node.drone_entered()
 
@@ -69,6 +69,9 @@ class Drone:
             for node in nodes:
                 if not next_node:
                     next_node = node
+                if next_node == self.parent.last_node:
+                    next_node = None
+                    continue
                 # Gets zone if current node is connection
                 zone: Zone = node.get_current_zone()
 
