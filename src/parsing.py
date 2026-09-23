@@ -148,11 +148,6 @@ class MapValidator:
                             if max_drones < 0:
                                 raise ParseError("invalid value in max_drones",
                                                  line_count)
-                            if self._map.zones[current_zone].type is\
-                                    ZoneTypes.START or\
-                                    self._map.zones[current_zone].type is\
-                                    ZoneTypes.END:
-                                ...  ## TODO Add warning log here later
                             self._map.zones[
                                     current_zone].max_drones = int(value)
                         except ValueError as e:
