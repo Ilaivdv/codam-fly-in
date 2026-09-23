@@ -122,15 +122,15 @@ class Drone:
 
             # Valid neighbors are adjacent nodes that have a route to end_hub
             nodes: list[Node] = \
-                    sorted(self.parent.current_node.get_valid_neighbors(),
-                           key=lambda x: x.distance)
+                sorted(self.parent.current_node.get_valid_neighbors(),
+                       key=lambda x: x.distance)
             next_node: Node | None = None
 
             self.parent.logs.log_debug((f"D{self.parent._id} options: "
-                                        f"{[i.__str__() + " " + str(
-                                         i.distance) for i in nodes
-                                        if type(i) is Connection
-                                        and not i.is_behind]}"))
+                                        f"{[i.__str__() + " " +
+                                            str(i.distance) for i in nodes
+                                            if type(i) is Connection
+                                            and not i.is_behind]}"))
 
             self.parent.pop_from_queue()
 
@@ -145,7 +145,7 @@ class Drone:
                 # Restricted zones pass because zone will have space after wait
                 if node.drone_amount == node.max_drones or \
                         zone.drone_amount == zone.max_drones and \
-                        not zone.rule is ZoneRules.RESTRICTED:
+                        zone.rule is not ZoneRules.RESTRICTED:
                     prev_node = node
                     continue
 

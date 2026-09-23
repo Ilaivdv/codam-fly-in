@@ -42,7 +42,7 @@ class MapProcess(ABC):
             list[str]: List containing all directories and .txt files at given
                 path.
         """
-        
+
         path += '/' if not path.endswith('/') else ''
         res: list[str] = []
 
