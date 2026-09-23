@@ -102,9 +102,22 @@ class TerminalRenderer(MapProcess):
                     pass
 
     def process_turn(self, auto_advance: bool) -> None:
+        """
+        Processes, logs and formats a turn.
+        Listens for input if auto_advance is False.
+
+        Colored output is done by matching colors based on
+        every Zones color value, otherwise getting set to gray.
+
+        Args:
+            auto_advance: Whether turns should automatically advance forward.
+        """
+
         self._map.advance_turn()
 
         def get_rainbow_text(text: str) -> str:
+            """ Returns rainbow version of given string. """
+
             rainbow: list[Colors] = [
                     Colors.RED,
                     Colors.ORANGE,
@@ -163,6 +176,14 @@ class TerminalRenderer(MapProcess):
               len(self._logs.turns)} turns{Style.RESET_ALL} ==")
 
     def on_input(self) -> str:
+        """
+        Reads and returns stdin for input, reads more bytes for
+        escape sequences to get arrow keys as well.
+
+        Returns:
+            str: Bytes read from stdin.
+        """
+
         original_settings = termios.tcgetattr(sys.stdin)
         try:
             _ = tty.setraw(sys.stdin.fileno())
