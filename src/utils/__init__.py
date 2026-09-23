@@ -1,3 +1,5 @@
+""" Utils module for Fly-in """
+
 from .log import Logs
 from .state import State
 
