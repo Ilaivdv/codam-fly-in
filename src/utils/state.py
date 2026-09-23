@@ -1,8 +1,19 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class State(ABC):
-    """ A base state class. """
+    """ An abstract State class. """
+
+    def __init__(self, parent: Any) -> None:
+        """
+        Initializes State.
+
+        Args:
+            parent: State's parent.
+        """
+
+        self.parent: Any = parent
 
     @abstractmethod
     def on_enter(self) -> None:
@@ -15,5 +26,5 @@ class State(ABC):
         pass
 
     def __str__(self) -> str:
-        """ Returns the name of the state. """
+        """ Returns the name of State's class. """
         return self.__class__.__name__

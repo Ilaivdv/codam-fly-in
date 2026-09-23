@@ -96,14 +96,30 @@ class Drone:
 
     # -- DRONE STATES --
     class StateNormal(State):
+        """ Drone's normal State, decides best next move to make. """
+
         def __init__(self, parent: Drone) -> None:
-            self.parent: Drone = parent
+            super().__init__(parent)
 
         def on_enter(self) -> None:
+            """ Logs entered State to Log's debug. """
+
             self.parent.logs.log_debug(
                     f"D{self.parent._id} is in normal state")
 
         def on_event(self) -> None:
+            """
+            Decides most efficient next move to make.
+
+            Sorts neighboring nodes by shortest distance and advances to
+            the first one if capacity allows it or, first available Zone
+            with rule PRIORITY.
+
+            If no available Zones are found, or if its more beneficial to wait,
+            Drone will enter waiting State and wait not make any movements for
+            the turn.
+            """
+
             # Valid neighbors are adjacent nodes that have a route to end_hub
             nodes: list[Node] = \
                     sorted(self.parent.current_node.get_valid_neighbors(),
@@ -160,23 +176,37 @@ class Drone:
 
     class StateWaiting(State):
         def __init__(self, parent: Drone) -> None:
-            self.parent: Drone = parent
+            super().__init__(parent)
 
         def on_enter(self) -> None:
+            """ Logs entered State to Log's debug. """
+
             self.parent.logs.log_debug(f"D{self.parent._id} is waiting")
 
         def on_event(self) -> None:
+            """
+            Switches States to normal to check whether a new Node is
+            available to move to.
+            """
+
             self.parent.next_state(self.parent.states["normal"])
             self.parent.current_state.on_event()
 
     class StateFinished(State):
         def __init__(self, parent: Drone) -> None:
-            self.parent: Drone = parent
+            super().__init__(parent)
 
         def on_enter(self) -> None:
+            """ Logs entered State to Log's debug. """
+
             self.parent.logs.log_debug(f"D{self.parent._id} is finished")
 
         def on_event(self) -> None:
+            """
+            Clears last entered connection if present, otherwise does
+            nothing.
+            """
+
             if self.parent.last_connection is not None:
                 self.parent.last_connection.drone_exited()
                 self.parent.last_connection = None
