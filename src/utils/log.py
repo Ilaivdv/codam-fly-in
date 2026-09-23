@@ -1,16 +1,21 @@
+import atexit
+import os
+
 class Logs:
     """ Records logs for turns, debugging and visualization of the program. """
 
-    def __init__(self, write: bool = False, debug: bool = False) -> None:
+    def __init__(self, write: str = "", debug: bool = False) -> None:
         """
         Initializes Logs.
 
         Args:
-            write: Command-line argument for whether to write results to file.
+            write: Command-line argument for file to write results to.
+                (default empty)
             debug: Command-line argmuent for showing debug information.
         """
 
-        self.write_logs: bool = write
+        self.write_file: str = write
+        _ = atexit.register(self._write_logs)
         self.debug: bool = debug
 
         self._current_turn: str = ""
@@ -40,3 +45,20 @@ class Logs:
         self._current_turn_debug = ""
         self.turns.append(self._current_turn.strip())
         self._current_turn = ""
+
+    def _write_logs(self) -> None:
+        """
+        Writes logs to given argument from flag write_logs,
+        otherwise does nothing.
+        """
+
+        if not self.write_file:
+            return
+        if "/" in self.write_file:
+            os.makedirs(os.path.dirname(self.write_file), exist_ok=True)
+        with open(self.write_file, "w") as f:
+            for i, turn in enumerate(self.turns):
+                if self.debug:
+                    _ = f.write(self.turns_debug[i] + "\n")
+                _ = f.write((f"Turn {i + 1}:" if self.debug else "") +
+                             f" {turn}\n\n")

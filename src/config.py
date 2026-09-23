@@ -54,11 +54,10 @@ class Config:
                 default="maps/",
                 required=False)
 
-        ## TODO Implement write logs
         _ = arg_parser.add_argument(
                 "-w", "--write_logs",
-                help="Write simulation results to file simulation_results.txt",
-                action="store_true",
+                help="Write simulation results to given file name",
+                default="",
                 required=False)
 
         _ = arg_parser.add_argument(
