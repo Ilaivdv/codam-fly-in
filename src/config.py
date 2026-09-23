@@ -12,7 +12,7 @@ class Config:
         self.args: Namespace = self._register_arguments()
         self.logs: Logs = Logs(
                 write=self.args.write_logs,
-                debug=self.args.debug)
+                debug=self.args.verbose)
 
         try:
             self._start_render(self.args.terminal)
@@ -61,7 +61,7 @@ class Config:
                 required=False)
 
         _ = arg_parser.add_argument(
-                "-d", "--debug",
+                "-v", "--verbose",
                 help=("Adds useful debug info and writes it if "
                       "--write_logs is enabled "
                       "(live debug output only supported for terminal mode)"),
