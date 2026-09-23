@@ -19,7 +19,7 @@ help:
 	@uv run --quiet $(PY) -m src -h
 
 debug: install
-	uv run $(PY) -m pdb -m src
+	uv run $(PY) -m pdb -m src -v
 
 install:
 	@uv sync
