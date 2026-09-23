@@ -12,6 +12,9 @@ MYPYFLAGS = --warn-return-any \
 run: install
 	@uv run --quiet $(PY) -m src
 
+terminal: install
+	@uv run --quiet $(PY) -m src --terminal
+
 test:
 	@uv run pytest -v tests
 

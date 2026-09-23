@@ -47,6 +47,8 @@ To run normally, use
 make
 # or
 make run
+# for terminal only output
+make terminal
 # or to run directly
 uv run -m src
 ```
