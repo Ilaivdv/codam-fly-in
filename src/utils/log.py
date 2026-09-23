@@ -1,6 +1,7 @@
 import atexit
 import os
 
+
 class Logs:
     """ Records logs for turns, debugging and visualization of the program. """
 
@@ -61,4 +62,4 @@ class Logs:
                 if self.debug:
                     _ = f.write(self.turns_debug[i] + "\n")
                 _ = f.write((f"Turn {i + 1}:" if self.debug else "") +
-                             f" {turn}\n\n")
+                            f" {turn}\n\n")
