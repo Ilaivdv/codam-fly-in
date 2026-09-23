@@ -11,6 +11,7 @@ constraints.
     + Restricted zones take drones 2 turns to move to instead of 1
     + Blocked zones are completely inaccessible
     + Priority zones should always be preferred by drones if accessible
+    + Configurable max capacity for zones and connections, defaults to 1
 - Live visual feedback
 - Both an interactive CLI and graphical interface
 
@@ -31,12 +32,29 @@ Both a colored terminal output and graphical user interface were implemented for
 
 
 # Instructions
+### Setup
 > [!NOTE]
 > Requires Python version 3.13+ with uv package manager
 
-To install dependencies, use `make install` or just run `uv sync` directly.<br>
-To run the program use `make` or `make run`
+First clone the repository, move into it and install dependencies
+```shell
+git clone https://github.com/Ilaivdv/codam-fly-in && cd codam-fly-in && make install
+```
+### Usage
 
+To run normally, use
+```shell
+make
+# or
+make run
+# or to run directly
+uv run -m src
+```
+
+To run the program with flags, see list of available flags
+```shell
+uv run -m src -h
+```
 
 # Resources
 - [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm)
