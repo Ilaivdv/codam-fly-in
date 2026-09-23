@@ -11,6 +11,11 @@ class ParseError(Exception):
     """ Parse error for verbosity """
 
     def __init__(self, msg: str, line: int = 0) -> None:
+        """
+        Initializes error with colored formatting and adds line for
+        traceback if present.
+        """
+
         super().__init__(f"\n{Fore.RED}ParseError" +
                          (f" at line {line}" if line else '') +
                          f"{Fore.RESET}: {msg}")
@@ -22,6 +27,22 @@ class MapValidator:
         self._logs: Logs = logs
 
     def validate_map(self, path: str) -> Map:
+        """
+        Validates a text file using very strict regex patterns
+        and type checking.
+
+        Args:
+            path: Path to the selected .txt file.
+
+        Raises:
+            ParseError: If text file is an invalid file/path or has an
+                invalid map formatting.
+
+        Returns:
+            Map: A fully validated Map class storing the level to be used for
+                the simulation.
+        """
+
         valid_zones: list[str] = [i.value for i in ZoneTypes]
         valid_metadata: list[str] = ["color", "zone", "max_drones"]
 
@@ -33,6 +54,24 @@ class MapValidator:
 
         def validate_connection(connection: str, names: list[str],
                                 line_count: int) -> bool:
+            """
+            Validates a connection in map file using another layer of
+            strict regex patterns.
+
+            Args:
+                connection: The line of text to be validated.
+                names: Every defined Zone name.
+                line_count: Current line being parsed to be used in
+                    case of an error.
+
+            Raises:
+                ParseError: If line is connection and is invalid.
+
+            Returns:
+                bool: True if its a valid Connection, False if it wasn't even a
+                    Connection to begin with.
+            """
+
             match = re.fullmatch((r"^connection\s*:\s+"
                                   rf"(?P<n1>\b({'|'.join(names)})\b)-"
                                   rf"(?P<n2>\b({'|'.join(names)})\b)"
@@ -74,6 +113,20 @@ class MapValidator:
 
         def validate_metadata(metadata: list[str], current_zone: str,
                               line_count: int) -> None:
+            """
+            Validates metadata of given Zone using
+            another layer of regex patterns.
+
+            Args:
+                metadata: A list of split keys within metadata.
+                current_zone: Name of the current Zone getting validated.
+                line_count: Current line being parsed to be used in
+                    case of an error.
+
+            Raises:
+                ParseError: In case of invalid metadata key/value/formatting.
+            """
+
             check_duplicate: list[str] = []
 
             for i in metadata:
@@ -176,5 +229,5 @@ class MapValidator:
                                 curr_key.group("name"), line_count)
 
         self._map.validate_positions()  # Raises error on overlap
-        self._map.init_level()  # Raises pathfinding errors if there are any
+        self._map.init_level()  # Raises errors on pathfinding if there are any
         return self._map
