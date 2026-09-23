@@ -34,7 +34,7 @@ Both a colored terminal output and graphical user interface were implemented for
 # Instructions
 ### Setup
 > [!NOTE]
-> Requires Python version 3.13+ with uv package manager
+> Requires Python version 3.13+ with uv package manager, currently only supports MacOS and linux systems
 
 First clone the repository, move into it and install dependencies
 ```shell
