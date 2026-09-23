@@ -49,17 +49,20 @@ class Logs:
 
     def _write_logs(self) -> None:
         """
-        Writes logs to given argument from flag write_logs,
+        Writes logs to given argument from flag write_logs if possible,
         otherwise does nothing.
         """
 
         if not self.write_file:
             return
-        if "/" in self.write_file:
-            os.makedirs(os.path.dirname(self.write_file), exist_ok=True)
-        with open(self.write_file, "w") as f:
-            for i, turn in enumerate(self.turns):
-                if self.debug:
-                    _ = f.write(self.turns_debug[i] + "\n")
-                _ = f.write((f"Turn {i + 1}:" if self.debug else "") +
-                            f" {turn}\n\n")
+        try:
+            if "/" in self.write_file:
+                os.makedirs(os.path.dirname(self.write_file), exist_ok=True)
+            with open(self.write_file, "w") as f:
+                for i, turn in enumerate(self.turns):
+                    if self.debug:
+                        _ = f.write(self.turns_debug[i] + "\n")
+                    _ = f.write((f"Turn {i + 1}:" if self.debug else "") +
+                                f" {turn}\n\n")
+        except Exception:
+            pass
