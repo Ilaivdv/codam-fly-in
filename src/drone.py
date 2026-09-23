@@ -3,11 +3,23 @@ from src.utils import State, Logs
 
 
 class Drone:
+    """
+    A Drone class holding methods for efficiently navigating pre-mapped routes.
+    """
+
     def __init__(self, id: int, start_zone: Zone, log: Logs) -> None:
+        """
+        Initializes drone.
+
+        Args:
+            id: Unique integer value representing Drone's id.
+            start_zone: Starting point for Drone.
+            log: Logger which Drone will log its movements to.
+        """
+
         self._id: int = id
         self.current_node: Node = start_zone
         self.last_connection: Connection | None = None
-        self.last_node: Node = start_zone
         self._queued_zone: Zone | None = None
 
         self.logs: Logs = log
@@ -20,8 +32,20 @@ class Drone:
 
     def _move_to_node(self, to_node: Node,
                       skip_connection: bool = True) -> None:
+        """
+        Moves to a given node and calls enter and exit methods for that node
+        to update its capacity.
+
+        On final Zone entered, Drone will change state to finished,
+        waiting until the end of the program.
+
+        Args:
+            to_node: Node object to move to, can be either Connection or Zone.
+            skip_connection: Whether to skip over Connection and move to
+                its connected Zone occupying both nodes for that turn.
+        """
+
         self.current_node.drone_exited()
-        self.last_node = self.current_node
         self.current_node = to_node
         self.current_node.drone_entered()
 
@@ -45,21 +69,32 @@ class Drone:
                 f"D{self._id}-{self.current_node.__str__()}")
 
     def next_state(self, to_state: State) -> None:
+        """ Advances Drone to next state and calls its on_enter() method. """
+
         self.current_state = to_state
         self.current_state.on_enter()
 
     def add_to_queue(self, zone: Zone) -> None:
+        """
+        Adds a Zone to Drone's queue for the next turn.
+        Makes Zone's distance cost temporarily more expensive for other Drones.
+
+        Stops early if queue is already occupied.
+        """
+
         if self._queued_zone:
             return
         self._queued_zone = zone
         self._queued_zone.distance += 1
 
     def pop_from_queue(self) -> None:
+        """ Clear Zone from queue and restore Zone's distance cost. """
+
         if type(self._queued_zone) is Zone:
             self._queued_zone.distance -= 1
         self._queued_zone = None
 
-    # Drone states
+    # -- DRONE STATES --
     class StateNormal(State):
         def __init__(self, parent: Drone) -> None:
             self.parent: Drone = parent
