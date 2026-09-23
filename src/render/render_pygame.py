@@ -1,4 +1,4 @@
-from src.render.map_select import MapProcess
+from src.render.map_process import MapProcess
 from src.utils import Logs
 from src.map import Map
 

@@ -1,4 +1,4 @@
-from src.render.map_select import MapProcess
+from src.render.map_process import MapProcess
 from colorama import Back, Fore, Style
 from src.utils import Logs
 from src.map import Map
@@ -10,6 +10,8 @@ import os
 
 
 class Colors(StrEnum):
+    """ Enum storing RGB color escape sequences for printing to terminal. """
+
     MAROON = "\033[38;2;85;0;0m"
     CRIMSON = "\033[38;2;220;20;60m"
     RED = "\033[38;2;255;0;0m"
@@ -29,10 +31,27 @@ class Colors(StrEnum):
 
 class TerminalRenderer(MapProcess):
     def __init__(self, logs: Logs, auto_advance: bool = True) -> None:
+        """
+        Initializes TerminalRenderer and MapProcess.
+
+        Args:
+            logs: Logger to pass around to objects in the simulation.
+            auto_advance: Automatically advance turns until end is reached.
+                If False, listens for input after every turn to keep going.
+        """
         super().__init__(logs, auto_advance)
 
     def map_select(self, files: list[str]) -> Map:
-        print(self._logs.__str__())
+        """
+        Command-line map selection menu.
+
+        Args:
+            files: Options to show in selection.
+
+        Returns:
+            Map: Selected .txt file as a validated Map.
+        """
+
         selected: int = 0
 
         while True:
