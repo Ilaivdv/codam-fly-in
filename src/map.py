@@ -5,14 +5,29 @@ from colorama import Fore
 
 
 class MapError(Exception):
-    """ Map error for verbosity """
+    """ Map error for verbosity. """
 
     def __init__(self, msg: str) -> None:
+        """ Initializes error with colored formatting. """
+
         super().__init__(f"\n{Fore.RED}MapError{Fore.RESET}: {msg}")
 
 
 class Map:
+    """
+    Stores the selected map after succesful validation and
+    holds methods for initializing and advancing the simulation's process.
+    """
+
     def __init__(self, logs: Logs) -> None:
+        """
+        Initializes map configuration from selected file after parsing
+        ensuring its fully valid.
+
+        Args:
+            logs: Logger for logging the simulation's turns.
+        """
+
         self.nb_drones: int
         self.drones: dict[int, Drone] = {}
 
@@ -24,6 +39,13 @@ class Map:
         self.logs: Logs = logs
 
     def validate_positions(self) -> None:
+        """
+        Goes through every saved position and checks for duplicates.
+
+        Raises:
+            MapError: When duplicate position is found.
+        """
+
         zones_pos: list[tuple[int, int]] = []
         for k, v in self.zones.items():
             if v.pos in zones_pos:
@@ -33,6 +55,14 @@ class Map:
                 zones_pos.append(v.pos)
 
     def init_level(self) -> None:
+        """
+        Initializes Drone objects and maps out the level's distances
+        from parsed map file.
+
+        Raises:
+            MapError: If map doesn't have either start or end hub.
+        """
+
         if not self._init_start_end_zones():
             raise MapError("couldn't get start and/or end zones")
 
@@ -42,6 +72,13 @@ class Map:
         self.map_distances()
 
     def _init_start_end_zones(self) -> bool:
+        """
+        Searches for start and end zones.
+
+        Returns:
+            bool: Whether both zones are found or not.
+        """
+
         for zone in self.zones.values():
             if zone.type is ZoneTypes.START:
                 zone.max_drones = self.nb_drones
@@ -52,6 +89,17 @@ class Map:
         return bool(self._start and self._end)
 
     def map_distances(self) -> None:
+        """
+        Uses Dijkstra's algorithm to map out every possible route to end Zone.
+
+        After all zones are found, sets distance to end for every Zone and
+        Connection and defines for each Zone which of other Zones are valid.
+        (valid being a zone that reaches the end)
+
+        Raises:
+            MapError: If no route has been found from the start to end.
+        """
+
         # Go from end to start saving all routes that reach start_hub
         routes: list[list[Zone]] = [[self._end]]
         valid_routes: list[list[Zone]] = []
@@ -88,17 +136,23 @@ class Map:
                     valid_zones.add(node)
                 distance_from_end += 1
 
-        # Add 1 to distance point for each restricted zone and add distances
-        # to connections as well
+        # Add 1 distance point for each restricted zone and add distances
+        # to connections
         for zone in self.zones.values():
             zone.distance += bool(zone.rule is ZoneRules.RESTRICTED)
             zone.valid_zones = valid_zones
             for connection in zone.connections:
                 connection.distance = connection.to.distance
 
+            # Log each zones distance to the end for debugging
             self.logs.log_debug(f"{zone.__str__()} distance: {zone.distance}")
 
     def advance_turn(self) -> None:
+        """
+        Advance simulation by 1 turn, logging all movements and checking if
+        each Drone has reached the goal.
+        """
+
         # Process every drones move one by one
         for drone in self.drones.values():
             drone.current_state.on_event()
