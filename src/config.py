@@ -4,7 +4,11 @@ from src.utils import Logs
 
 
 class Config:
+    """ Configuration handler for the module. """
+
     def __init__(self) -> None:
+        """ Parses arguments, sets up the logger and starts renderer. """
+
         self.args: Namespace = self._register_arguments()
         self.logs: Logs = Logs(
                 write=self.args.write_logs,
@@ -16,6 +20,14 @@ class Config:
             print(e)
 
     def _start_render(self, do_terminal: bool = False) -> None:
+        """
+        Starts rendering process going through map selection first using
+        selected rendering method.
+
+        Args:
+            do_terminal: Whether to use terminal rendering or not.
+        """
+
         # TODO Add back in when pygame works
         # renderer: MapProcess = TerminalRenderer(self.logs) if do_terminal \
         #         else PygameRenderer(self.logs)
@@ -24,6 +36,14 @@ class Config:
         renderer.start_process(self.args.map_path)
 
     def _register_arguments(self) -> Namespace:
+        """
+        Sets up command-line arguments.
+
+        Returns:
+            Namespace: All registered arguments holding their values
+                based on present flags.
+        """
+
         arg_parser = ArgumentParser(
                 prog="python -m src",
                 description="Fly-in project made by Ilai. :)")
