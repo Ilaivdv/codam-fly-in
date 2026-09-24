@@ -37,11 +37,16 @@ class PygameRenderer(MapProcess):
 
     def map_select(self, files: list[str]) -> Map:
 
+        margin_left: int = 200
+
         zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
         zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
-        text = self.font.render("Quit", True, Colors.WHITE)
-        button = self.Button(text, (100, 100), Colors.YELLOW)
-        button2 = self.Button(text, (100, 210), Colors.YELLOW)
+
+        logo_text = self.font.render("Fly-in", True, Colors.WHITE)
+        start_text = self.font.render("Maps", True, Colors.WHITE)
+        quit_text = self.font.render("Quit", True, Colors.WHITE)
+        start_button = self.Button(start_text, (margin_left, 400), Colors.YELLOW)
+        quit_button = self.Button(quit_text, (margin_left, 510), Colors.YELLOW)
 
         ## To modulate a sprite
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
@@ -52,12 +57,13 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.QUIT:
                     running = False
             self.screen.fill(Colors.BLACK)
-            self.screen.blit(zone_sprite, zone_sprite.get_rect(
-                center=self.screen.get_rect().center))
+            self.screen.blit(logo_text, (margin_left, 200))
+            # self.screen.blit(zone_sprite, zone_sprite.get_rect(
+            #     center=self.screen.get_rect().center))
 
-            if button.process(self.screen, text):
-                running = False
-            if button2.process(self.screen, text):
+            if start_button.process(self.screen):
+                ...
+            if quit_button.process(self.screen):
                 running = False
 
             pg.display.update()
@@ -90,17 +96,18 @@ class PygameRenderer(MapProcess):
 
             self.is_clicked: bool = False
 
-        def process(self, surface: pg.Surface, text: pg.Surface) -> bool:
+        def process(self, surface: pg.Surface) -> bool:
             mouse_pos: tuple[int, int] = pg.mouse.get_pos()
 
             # pg.draw.rect(surface, self.color, self.rect)
             pg.draw.rect(surface, self.color, self.rect)
-            surface.blit(text, (self.rect.topleft[0] +
+            surface.blit(self.text, (self.rect.topleft[0] +
                                 (self.margin_x +
                                  self.current_hover_size) / 2.5,
                                 self.rect.topleft[1] + self.margin_y / 1.5))
 
             if self.rect.collidepoint(mouse_pos):
+                # Slowly lerp button size up
                 if self.current_hover_size < self.max_hover_size:
                     self.rect.inflate_ip(self.hover_speed, self.hover_speed)
                     self.current_hover_size += self.hover_speed
@@ -108,6 +115,7 @@ class PygameRenderer(MapProcess):
                 if pg.mouse.get_pressed()[0] == 1 and not self.is_clicked:
                     self.is_clicked = True
                     return True
+            # Slowly lerp button size down
             elif self.current_hover_size > 0.0:
                 self.rect.inflate_ip(-self.hover_speed, -self.hover_speed)
                 self.current_hover_size -= self.hover_speed
