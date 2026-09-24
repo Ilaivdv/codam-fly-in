@@ -43,9 +43,9 @@ class PygameRenderer(MapProcess):
         zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
 
         logo_text = self.font.render("Fly-in", True, Colors.WHITE)
-        start_text = self.font.render("Maps", True, Colors.WHITE)
+        maps_text = self.font.render("Maps", True, Colors.WHITE)
         quit_text = self.font.render("Quit", True, Colors.WHITE)
-        start_button = self.Button(start_text, (margin_left, 400), Colors.YELLOW)
+        maps_button = self.Button(maps_text, (margin_left, 400), Colors.YELLOW)
         quit_button = self.Button(quit_text, (margin_left, 510), Colors.YELLOW)
 
         ## To modulate a sprite
@@ -63,11 +63,28 @@ class PygameRenderer(MapProcess):
             #     center=self.screen.get_rect().center))
 
             if not in_map_select:
-                if start_button.process(self.screen):
+                if maps_button.process(self.screen):
                     in_map_select = True
                 if quit_button.process(self.screen):
                     running = False
             else:
+                if maps_button.process(self.screen):
+                    in_map_select = False
+                ## TEMPORARY SHAPES FOR VISUALIZATION, REMOVE LATER
+                pg.draw.polygon(self.screen, Colors.WHITE,
+                                [(maps_button.rect.centerx + 50,
+                                  maps_button.rect.centery - 60),
+                                 (maps_button.rect.centerx - 50,
+                                  maps_button.rect.centery - 60),
+                                 (maps_button.rect.centerx,
+                                  maps_button.rect.centery - 110)])
+                pg.draw.polygon(self.screen, Colors.WHITE,
+                                [(maps_button.rect.centerx + 50,
+                                  maps_button.rect.centery + 60),
+                                 (maps_button.rect.centerx - 50,
+                                  maps_button.rect.centery + 60),
+                                 (maps_button.rect.centerx,
+                                  maps_button.rect.centery + 110)])
                 ...
 
             pg.display.update()
