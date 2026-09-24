@@ -52,6 +52,7 @@ class PygameRenderer(MapProcess):
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
 
         running: bool = True
+        in_map_select: bool = False
         while running:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -61,10 +62,13 @@ class PygameRenderer(MapProcess):
             # self.screen.blit(zone_sprite, zone_sprite.get_rect(
             #     center=self.screen.get_rect().center))
 
-            if start_button.process(self.screen):
+            if not in_map_select:
+                if start_button.process(self.screen):
+                    in_map_select = True
+                if quit_button.process(self.screen):
+                    running = False
+            else:
                 ...
-            if quit_button.process(self.screen):
-                running = False
 
             pg.display.update()
             self.clock.tick(60)
@@ -99,7 +103,6 @@ class PygameRenderer(MapProcess):
         def process(self, surface: pg.Surface) -> bool:
             mouse_pos: tuple[int, int] = pg.mouse.get_pos()
 
-            # pg.draw.rect(surface, self.color, self.rect)
             pg.draw.rect(surface, self.color, self.rect)
             surface.blit(self.text, (self.rect.topleft[0] +
                                 (self.margin_x +
