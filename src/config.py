@@ -21,17 +21,15 @@ class Config:
 
     def _start_render(self, do_terminal: bool = False) -> None:
         """
-        Starts rendering process going through map selection first using
+        Starts rendering process going through map selection first, using
         selected rendering method.
 
         Args:
             do_terminal: Whether to use terminal rendering or not.
         """
 
-        # TODO Add back in when pygame works
-        # renderer: MapProcess = TerminalRenderer(self.logs) if do_terminal \
-        #         else PygameRenderer(self.logs)
-        renderer: MapProcess = TerminalRenderer(self.logs, self.args.no_auto)
+        renderer: MapProcess = TerminalRenderer(self.logs) if do_terminal \
+                else PygameRenderer(self.logs)
 
         renderer.start_process(self.args.map_path)
 
