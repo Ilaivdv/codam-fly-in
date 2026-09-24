@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from src.utils import Logs
 from src.map import Map
 from time import sleep
-from typing import Any
 import os
 
 
@@ -103,12 +102,4 @@ class MapProcess(ABC):
     @abstractmethod
     def on_process_finished(self) -> None:
         """ Method that gets called after process is finished. """
-        ...
-
-    @abstractmethod
-    def on_input(self) -> Any:
-        """
-        Abstract method to listen for and return input. Type is Any to support
-        multiple types of input.
-        """
         ...
