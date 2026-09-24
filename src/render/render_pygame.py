@@ -32,14 +32,14 @@ class PygameRenderer(MapProcess):
         self.screen: pg.Surface = pg.display.set_mode((1080, 720),
                                                       flags=pg.RESIZABLE)
         self.clock: pg.time.Clock = pg.time.Clock()
-        self.font: pg.font.Font = pg.font.SysFont(None, 36)
+        self.font: pg.font.Font = pg.font.SysFont("arialblack", 36)
         super().__init__(logs)
 
     def map_select(self, files: list[str]) -> Map:
 
         zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
         zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
-        text = self.font.render("hi", True, Colors.BLACK)
+        # text = self.font.render("Menu", True, Colors.BLACK)
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
 
         running: bool = True
@@ -50,7 +50,7 @@ class PygameRenderer(MapProcess):
             self.screen.fill(Colors.WHITE)
             self.screen.blit(zone_sprite, zone_sprite.get_rect(
                 center=self.screen.get_rect().center))
-            self.screen.blit(text, (100, 100))
+            # self.screen.blit(text, (100, 100))
             pg.display.update()
             self.clock.tick(60)
         pg.quit()
@@ -61,3 +61,31 @@ class PygameRenderer(MapProcess):
 
     def on_process_finished(self) -> None:
         ...
+
+    # -- CLASSES --
+    class Button:
+        def __init__(self, pos: tuple[int, int],
+                     image: pg.Surface, scale: int) -> None:
+            width: int = image.get_width()
+            height: int = image.get_height()
+            self.image: pg.Surface = pg.transform.smoothscale(image,
+                                                              (scale, scale))
+            self.rect: pg.Rect = self.image.get_rect()
+            self.rect.topleft = pos
+
+            self.is_clicked: bool = False
+
+        def process(self, surface: pg.Surface) -> bool:
+            mouse_pos: tuple[int, int] = pg.mouse.get_pos()
+
+            surface.blit(self.image, (self.rect.x, self.rect.y))
+
+            if self.rect.collidepoint(mouse_pos):
+                if pg.mouse.get_pressed()[0] == 1 and not self.is_clicked:
+                    self.is_clicked = True
+                    return True
+
+            if not pg.mouse.get_pressed()[0]:
+                self.is_clicked = False
+
+            return False
