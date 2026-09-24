@@ -1,6 +1,5 @@
 from src.render.map_process import MapProcess
 from src.utils import Logs
-from pygame import gfxdraw
 from src.map import Map
 import pygame as pg
 import sys
@@ -36,11 +35,8 @@ class PygameRenderer(MapProcess):
 
     def map_select(self, files: list[str]) -> Map:
 
-        zone = pg.image.load("assets/zone.svg").convert_alpha()
-        zone = pg.transform.smoothscale(zone, (100, 100))
-        # gfxdraw.aacircle(self.screen, 100, 100, 60, Colors.VIOLET)
-        # gfxdraw.filled_circle(self.screen, 100, 100, 60, Colors.VIOLET)
-        # pg.draw.circle(self.screen, Colors.VIOLET, (100, 100), 20, 5)
+        zone_sprite= pg.image.load("assets/zone.svg").convert_alpha()
+        zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
 
         running: bool = True
         while running:
@@ -48,7 +44,8 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.QUIT:
                     running = False
             self.screen.fill(Colors.WHITE)
-            self.screen.blit(zone, zone.get_rect(center=self.screen.get_rect().center))
+            self.screen.blit(zone_sprite, zone_sprite.get_rect(
+                center=self.screen.get_rect().center))
             pg.display.update()
         pg.quit()
         sys.exit()
