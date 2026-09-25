@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 class Button:
     def __init__(self, text: pg.Surface,
                  pos: tuple[int, int],
@@ -25,8 +26,8 @@ class Button:
         pg.draw.rect(surface, self.color, self.rect)
         # Draw text in center of box
         surface.blit(self.text, (self.rect.topleft[0] +
-                            (self.margin_x +
-                             self.current_hover_size) / 2.5,
+                                 (self.margin_x +
+                                  self.current_hover_size) / 2.5,
                                  self.rect.centery - self.margin_y -
                                  (self.margin_y / 2)))
 
@@ -48,6 +49,7 @@ class Button:
             self.is_clicked = False
 
         return False
+
 
 class SmallButton:
     def __init__(self, shape_points: list[tuple[int, int]],
@@ -77,15 +79,15 @@ class SmallButton:
                           flipped: bool = False) -> list[tuple[int, int]]:
         if flipped:
             return [(surface.left - 17,
-                      surface.topleft[1] + 11),
-                     (surface.left - 17,
-                      surface.bottom - 10),
-                     (surface.left - 60,
-                      surface.centery)]
+                     surface.topleft[1] + 11),
+                    (surface.left - 17,
+                     surface.bottom - 10),
+                    (surface.left - 60,
+                     surface.centery)]
         else:
             return [(surface.right + 15,
-                      surface.topright[1] + 10),
-                     (surface.right + 15,
-                      surface.bottom - 10),
-                     (surface.right + 60,
-                      surface.centery)]
+                     surface.topright[1] + 10),
+                    (surface.right + 15,
+                     surface.bottom - 10),
+                    (surface.right + 60,
+                     surface.centery)]

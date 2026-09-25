@@ -51,21 +51,15 @@ class PygameRenderer(MapProcess):
 
         level_text_list: list[pg.Surface] = []
         for i in files:
-            level_text_list.append(self.font.render(i[i.find("/") + 1:], True, Colors.WHITE))
+            level_text_list.append(self.font.render(i[i.find("/") + 1:],
+                                                    True, Colors.WHITE))
 
         level_button = Button(level_text_list[0], (margin_left, 350),
-                                   Colors.YELLOW)
+                              Colors.YELLOW)
         right_button = SmallButton(SmallButton.reposition_arrows(
             level_button.rect), Colors.WHITE)
         left_button = SmallButton(SmallButton.reposition_arrows(
             level_button.rect, True), Colors.WHITE)
-        # left_button = SmallButton(
-        #         [(level_button.rect.left - 17,
-        #           level_button.rect.topleft[1] + 11),
-        #          (level_button.rect.left - 17,
-        #           level_button.rect.bottom - 10),
-        #          (level_button.rect.left - 60,
-        #           level_button.rect.centery)], Colors.WHITE)
 
         ## To modulate a sprite
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
@@ -97,8 +91,8 @@ class PygameRenderer(MapProcess):
                     else:
                         selected = 0
                     level_button = Button(level_text_list[selected],
-                                               (margin_left, 350),
-                                               Colors.YELLOW)
+                                          (margin_left, 350),
+                                          Colors.YELLOW)
                     right_button.shape = right_button.reposition_arrows(
                             level_button.rect)
                 if left_button.process(self.screen):
@@ -107,8 +101,8 @@ class PygameRenderer(MapProcess):
                     else:
                         selected = len(files) - 1
                     level_button = Button(level_text_list[selected],
-                                               (margin_left, 350),
-                                               Colors.YELLOW)
+                                          (margin_left, 350),
+                                          Colors.YELLOW)
                     right_button.shape = right_button.reposition_arrows(
                             level_button.rect)
                     # left_button.shape = left_button.reposition_arrows(
