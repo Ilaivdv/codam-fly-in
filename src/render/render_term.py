@@ -1,8 +1,9 @@
 from src.render.map_process import MapProcess
 from colorama import Back, Fore, Style
 from src.utils import Logs
-from src.map import Map
 from enum import StrEnum
+from src.map import Map
+from time import sleep
 import termios
 import tty
 import sys
@@ -40,6 +41,16 @@ class TerminalRenderer(MapProcess):
                 If False, listens for input after every turn to keep going.
         """
         super().__init__(logs, auto_advance)
+
+    def start_process(self, map_path: str, turn_delay: float = 0.0) -> None:
+        super().start_process(map_path, turn_delay)
+        print("\033c")
+
+        while not self._map.is_finished:
+            self.process_turn(self._auto_advance_turns)
+            if self._auto_advance_turns:
+                sleep(turn_delay)
+        self.on_process_finished()
 
     def map_select(self, files: list[str]) -> Map:
         """

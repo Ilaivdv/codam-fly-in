@@ -2,7 +2,6 @@ from src.parsing import MapValidator, ParseError
 from abc import ABC, abstractmethod
 from src.utils import Logs
 from src.map import Map
-from time import sleep
 import os
 
 
@@ -57,6 +56,7 @@ class MapProcess(ABC):
                 res.append(i + '/')
         return res
 
+    @abstractmethod
     def start_process(self, map_path: str, turn_delay: float = 0.0) -> None:
         """
         Goes through map select on given path to get Map,
@@ -70,13 +70,6 @@ class MapProcess(ABC):
         """
 
         self._map = self.map_select(self.get_options(map_path))
-        print("\033c")
-
-        while not self._map.is_finished:
-            self.process_turn(self._auto_advance_turns)
-            if self._auto_advance_turns:
-                sleep(turn_delay)
-        self.on_process_finished()
 
     @abstractmethod
     def map_select(self, files: list[str]) -> Map:
