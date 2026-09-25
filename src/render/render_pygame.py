@@ -32,7 +32,7 @@ class PygameRenderer(MapProcess):
         self.screen: pg.Surface = pg.display.set_mode((1080, 720),
                                                       flags=pg.RESIZABLE)
         self.clock: pg.time.Clock = pg.time.Clock()
-        self.font: pg.font.Font = pg.font.SysFont("arialblack", 98)
+        self.font: pg.font.Font = pg.font.SysFont(None, 98)
         super().__init__(logs)
 
     def map_select(self, files: list[str]) -> Map:
@@ -45,8 +45,8 @@ class PygameRenderer(MapProcess):
         logo_text = self.font.render("Fly-in", True, Colors.WHITE)
         maps_text = self.font.render("Maps", True, Colors.WHITE)
         quit_text = self.font.render("Quit", True, Colors.WHITE)
-        maps_button = self.Button(maps_text, (margin_left, 400), Colors.YELLOW)
-        quit_button = self.Button(quit_text, (margin_left, 510), Colors.YELLOW)
+        maps_button = self.Button(maps_text, (margin_left, 350), Colors.YELLOW)
+        quit_button = self.Button(quit_text, (margin_left, 460), Colors.YELLOW)
 
         ## To modulate a sprite
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
@@ -58,7 +58,7 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.QUIT:
                     running = False
             self.screen.fill(Colors.BLACK)
-            self.screen.blit(logo_text, (margin_left, 200))
+            self.screen.blit(logo_text, (margin_left, 150))
             # self.screen.blit(zone_sprite, zone_sprite.get_rect(
             #     center=self.screen.get_rect().center))
 
@@ -124,7 +124,8 @@ class PygameRenderer(MapProcess):
             surface.blit(self.text, (self.rect.topleft[0] +
                                 (self.margin_x +
                                  self.current_hover_size) / 2.5,
-                                self.rect.topleft[1] + self.margin_y / 1.5))
+                                     self.rect.centery - self.margin_y -
+                                     (self.margin_y / 2)))
 
             if self.rect.collidepoint(mouse_pos):
                 # Slowly lerp button size up
