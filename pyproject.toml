@@ -5,7 +5,7 @@ description = "Fly in project for the 42 core curriculum"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-	"pygame>=2.6.0",
+	"pygame-ce",
 	"colorama>=0.4.6",
 	"types-colorama>=0.4.15.2",
 ]
