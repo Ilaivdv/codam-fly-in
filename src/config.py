@@ -29,7 +29,7 @@ class Config:
         """
 
         renderer: MapProcess = TerminalRenderer(self.logs, self.args.no_auto) \
-                if do_terminal else PygameRenderer(self.logs)
+            if do_terminal else PygameRenderer(self.logs)
 
         renderer.start_process(self.args.map_path)
 
