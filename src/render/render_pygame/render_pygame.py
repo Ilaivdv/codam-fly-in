@@ -1,8 +1,8 @@
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
+from src.node import Zone, Connection
 from .render_utils import RenderUtils
 from src.utils import Logs
-from src.node import Zone
 from src.map import Map
 from time import sleep
 import pygame as pg
@@ -28,6 +28,7 @@ class PygameRenderer(MapProcess):
                 "bg2": self.utils.colors["midgray"],
                 "text1": self.utils.colors["white"],
                 "text2": self.utils.colors["black"],
+                "road1": self.utils.colors["white"],
                 }
         self.palette: dict[str, tuple[int, int, int]] = self.light_palette
 
@@ -57,16 +58,39 @@ class PygameRenderer(MapProcess):
         while True:
 
             level.fill(self.palette["bg1"])
-            self.utils.draw_grid(level, self.palette["bg2"],
-                                 self.grid_size, camera_pos)
+            # self.utils.draw_grid(level, self.palette["bg2"],
+            #                      self.grid_size, camera_pos)
+
+            # Draw connections first so its under the zones
+            for k in zones.keys():
+                from_pos: pg.Vector2 = pg.Vector2(
+                        k.pos[0] * self.grid_size + self.grid_size
+                        / 2 + camera_pos.x, k.pos[1] * self.grid_size +
+                        self.grid_size / 2 + camera_pos.y)
+
+                for connect in k.get_neighbors():
+                    if type(connect) is Connection and not connect.is_behind:
+                        to_pos: pg.Vector2 = pg.Vector2(
+                                connect.to.pos[0] * self.grid_size +
+                                self.grid_size
+                                / 2 + camera_pos.x,
+                                connect.to.pos[1] * self.grid_size +
+                                self.grid_size
+                                / 2 + camera_pos.y)
+
+                        pg.draw.aaline(level, self.palette["road1"],
+                                       from_pos, to_pos, 32)
 
             for k, v in zones.items():
-                level.blit(v, (k.pos[0] * self.grid_size + self.grid_size
-                                     / 2 + camera_pos.x -
-                                     v.get_rect().centerx,
-                                     k.pos[1] * self.grid_size + self.grid_size
-                                     / 2 + camera_pos.y -
-                                     v.get_rect().centery))
+                pos: pg.Vector2 = pg.Vector2(k.pos[0] * self.grid_size +
+                                             self.grid_size
+                                             / 2 + camera_pos.x,
+                                             k.pos[1] * self.grid_size +
+                                             self.grid_size
+                                             / 2 + camera_pos.y)
+                level.blit(v, (pos[0] - v.get_rect().centerx,
+                               pos[1] - v.get_rect().centery))
+
             self.process_turn(self._auto_advance_turns)
 
             for event in pg.event.get():
@@ -77,10 +101,12 @@ class PygameRenderer(MapProcess):
                     camera_pos.x += event.rel[0]
                     camera_pos.y += event.rel[1]
                 if event.type == pg.MOUSEBUTTONDOWN:
+                    # Scroll up
                     if event.button == 4:
                         scale += 0.1
                         if scale == 1.0:
-                            level = pg.transform.scale(level,self.screen.size)
+                            level = pg.transform.scale(level, self.screen.size)
+                    # Scroll down
                     if event.button == 5 and scale > 0.6:
                         scale -= 0.1
                         if scale < 1.0:
@@ -90,7 +116,6 @@ class PygameRenderer(MapProcess):
                     scale = 1.0
                     level = pg.transform.scale(level, self.screen.size)
                     level = self.screen.copy()
-
 
             if self._auto_advance_turns:
                 sleep(turn_delay)
