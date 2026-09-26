@@ -13,6 +13,7 @@ import os
 class Colors(StrEnum):
     """ Enum storing RGB color escape sequences for printing to terminal. """
 
+    DARKRED = "\033[38;2;50;0;0m"
     MAROON = "\033[38;2;85;0;0m"
     CRIMSON = "\033[38;2;220;20;60m"
     RED = "\033[38;2;255;0;0m"
