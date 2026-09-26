@@ -79,12 +79,10 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 4:
                         scale += 0.1
-                        print(scale)
                         if scale == 1.0:
                             level = pg.transform.scale(level,self.screen.size)
                     if event.button == 5 and scale > 0.6:
                         scale -= 0.1
-                        print(scale)
                         if scale < 1.0:
                             level = pg.transform.scale_by(level, 1.2)
 
