@@ -51,15 +51,17 @@ class PygameRenderer(MapProcess):
                              special_flags=pg.BLEND_RGBA_MIN)
             zones[zone] = zone_sprite
 
+        level = self.screen.copy()
+        scale: float = 1
         # while not self._map.is_finished:
         while True:
 
-            self.screen.fill(self.palette["bg1"])
-            self.utils.draw_grid(self.screen, self.palette["bg2"],
+            level.fill(self.palette["bg1"])
+            self.utils.draw_grid(level, self.palette["bg2"],
                                  self.grid_size, camera_pos)
 
             for k, v in zones.items():
-                self.screen.blit(v, (k.pos[0] * self.grid_size + self.grid_size
+                level.blit(v, (k.pos[0] * self.grid_size + self.grid_size
                                      / 2 + camera_pos.x -
                                      v.get_rect().centerx,
                                      k.pos[1] * self.grid_size + self.grid_size
@@ -74,10 +76,28 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.MOUSEMOTION and pg.mouse.get_pressed()[0]:
                     camera_pos.x += event.rel[0]
                     camera_pos.y += event.rel[1]
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 4:
+                        scale += 0.1
+                        print(scale)
+                        if scale == 1.0:
+                            level = pg.transform.scale(level,self.screen.size)
+                    if event.button == 5 and scale > 0.6:
+                        scale -= 0.1
+                        print(scale)
+                        if scale < 1.0:
+                            level = pg.transform.scale_by(level, 1.2)
+
+                if event.type == pg.VIDEORESIZE:
+                    scale = 1.0
+                    level = pg.transform.scale(level, self.screen.size)
+                    level = self.screen.copy()
+
 
             if self._auto_advance_turns:
                 sleep(turn_delay)
 
+            self.screen.blit(pg.transform.smoothscale_by(level, scale))
             pg.display.update()
             self.clock.tick(60)
         self.on_process_finished()
