@@ -1,3 +1,5 @@
+from src.node import Zone
+from typing import Any
 import pygame as pg
 import math
 
@@ -41,3 +43,31 @@ class RenderUtils:
             posy = y * grid_size + offset.y
             pg.draw.aaline(surface, color, (0, posy),
                            (surface.width, posy), 5)
+
+class RenderZone:
+    def __init__(self, zone: Zone, sprite: pg.Surface,
+                 color: tuple[int, int, int]) -> None:
+        self.zone: Zone = zone
+        self.sprite: pg.Surface = sprite
+        self.color: tuple[int, int, int] = color
+        self.font: pg.font.Font = pg.font.SysFont(None, 28)
+
+    def process(self, surface: pg.Surface, pos: pg.Vector2,
+                scale: float, parent: Any) -> None:
+        mouse_pos = pg.mouse.get_pos()
+
+        surface.blit(self.sprite, (pos[0] - self.sprite.get_rect().centerx,
+                                   pos[1] - self.sprite.get_rect().centery))
+
+        text = self.font.render((f"{self.zone.__str__()}\n"
+                                 f"rule: {self.zone.rule}\n"
+                                 f"drones: {self.zone.drone_amount}\n"
+                                 f"max_drones: {self.zone.max_drones}\n"
+                                 f"cost: {self.zone.distance}"), True,
+                                parent.palette["text2"])
+        rect = text.get_rect()
+        rect.topleft = pos
+
+        if self.sprite.get_rect(center=(pos * scale)).collidepoint(mouse_pos):
+            surface.blit(text,
+                         (pos[0], pos[1] + self.sprite.get_rect().bottom / 2))

@@ -1,7 +1,7 @@
+from .render_utils import RenderUtils, RenderZone
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
-from src.node import Zone, Connection
-from .render_utils import RenderUtils
+from src.node import Connection
 from src.utils import Logs
 from src.map import Map
 from time import sleep
@@ -28,6 +28,7 @@ class PygameRenderer(MapProcess):
                 "bg2": self.utils.colors["midgray"],
                 "text1": self.utils.colors["white"],
                 "text2": self.utils.colors["black"],
+                "button1": self.utils.colors["yellow"],
                 "road1": self.utils.colors["white"],
                 }
         self.palette: dict[str, tuple[int, int, int]] = self.light_palette
@@ -38,7 +39,7 @@ class PygameRenderer(MapProcess):
         camera_pos: pg.math.Vector2 = pg.math.Vector2(
                 100, self.screen.get_rect().centery)
 
-        zones: dict[Zone, pg.Surface] = {}
+        zones: list[RenderZone] = []
         for zone in self._map.zones.values():
             color: tuple[int, int, int]
             try:
@@ -50,7 +51,7 @@ class PygameRenderer(MapProcess):
             zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
             zone_sprite.fill(color,
                              special_flags=pg.BLEND_RGBA_MIN)
-            zones[zone] = zone_sprite
+            zones.append(RenderZone(zone, zone_sprite, color))
 
         level = self.screen.copy()
         scale: float = 1
@@ -62,13 +63,13 @@ class PygameRenderer(MapProcess):
             #                      self.grid_size, camera_pos)
 
             # Draw connections first so its under the zones
-            for k in zones.keys():
+            for i in zones:
                 from_pos: pg.Vector2 = pg.Vector2(
-                        k.pos[0] * self.grid_size + self.grid_size
-                        / 2 + camera_pos.x, k.pos[1] * self.grid_size +
+                        i.zone.pos[0] * self.grid_size + self.grid_size
+                        / 2 + camera_pos.x, i.zone.pos[1] * self.grid_size +
                         self.grid_size / 2 + camera_pos.y)
 
-                for connect in k.get_neighbors():
+                for connect in i.zone.get_neighbors():
                     if type(connect) is Connection and not connect.is_behind:
                         to_pos: pg.Vector2 = pg.Vector2(
                                 connect.to.pos[0] * self.grid_size +
@@ -81,15 +82,14 @@ class PygameRenderer(MapProcess):
                         pg.draw.aaline(level, self.palette["road1"],
                                        from_pos, to_pos, 32)
 
-            for k, v in zones.items():
-                pos: pg.Vector2 = pg.Vector2(k.pos[0] * self.grid_size +
+            for i in zones:
+                pos: pg.Vector2 = pg.Vector2(i.zone.pos[0] * self.grid_size +
                                              self.grid_size
                                              / 2 + camera_pos.x,
-                                             k.pos[1] * self.grid_size +
+                                             i.zone.pos[1] * self.grid_size +
                                              self.grid_size
                                              / 2 + camera_pos.y)
-                level.blit(v, (pos[0] - v.get_rect().centerx,
-                               pos[1] - v.get_rect().centery))
+                i.process(level, pos, scale, self)
 
             self.process_turn(self._auto_advance_turns)
 
@@ -136,9 +136,9 @@ class PygameRenderer(MapProcess):
         maps_text = self.font.render("Maps", True, self.palette["text1"])
         quit_text = self.font.render("Quit", True, self.palette["text1"])
         maps_button = Button(maps_text, (margin_left, 350),
-                             self.utils.colors["yellow"])
+                             self.palette["button1"])
         quit_button = Button(quit_text, (margin_left, 460),
-                             self.utils.colors["yellow"])
+                             self.palette["button1"])
 
         # -- Map select objects --
         level_text_list: list[pg.Surface] = []
@@ -148,14 +148,14 @@ class PygameRenderer(MapProcess):
                 i[i.find("/") + 1:], True, self.palette["text1"]))
 
         level_button = Button(level_text_list[0], (margin_left, 350),
-                              self.utils.colors["yellow"])
+                              self.palette["button1"])
         right_button = SmallButton(SmallButton.reposition_arrows(
             level_button.rect), self.utils.colors["gray"])
         left_button = SmallButton(SmallButton.reposition_arrows(
             level_button.rect, True), self.utils.colors["gray"])
         back_text = self.font.render("Back", True, self.palette["text1"])
         back_button = Button(back_text, (margin_left, 460),
-                             self.utils.colors["yellow"])
+                             self.palette["button1"])
 
         running: bool = True
 
