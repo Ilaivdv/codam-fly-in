@@ -44,6 +44,7 @@ class RenderUtils:
             pg.draw.aaline(surface, color, (0, posy),
                            (surface.width, posy), 5)
 
+
 class RenderZone:
     def __init__(self, zone: Zone, sprite: pg.Surface,
                  color: tuple[int, int, int]) -> None:
