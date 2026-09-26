@@ -1,6 +1,7 @@
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
 from src.utils import Logs
+from src.node import Zone
 from src.map import Map
 from time import sleep
 import pygame as pg
@@ -43,23 +44,42 @@ class PygameRenderer(MapProcess):
     def start_process(self, map_path: str, turn_delay: float = 0) -> None:
         super().start_process(map_path, turn_delay)
 
-        grid_offset: int = 100
+        grid_offset: int = 300
+        camera_pos: pg.math.Vector2 = pg.math.Vector2(
+                100, self.screen.get_rect().centery)
+        # camera_pos: tuple[int, int] = 0, 0
 
-        zones: dict[str, tuple[int, int] | pg.Surface] = {}
+        zones: dict[Zone, pg.Surface] = {}
 
         ## To modulate a sprite
         # zone_sprite.fill(Colors.RED, special_flags=pg.BLEND_RGBA_MIN)
 
-        # for name, zone in self._map.zones.items():
-        #     zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
-        #     zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
-        #     zones[name] = zone
-        #     zones[name] = zone
+        for zone in self._map.zones.values():
+            zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
+            zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
+            zones[zone] = zone_sprite
 
-        while not self._map.is_finished:
+        # while not self._map.is_finished:
+        while True:
+            self.screen.fill(Colors.WHITE)
+            for k, v in zones.items():
+                self.screen.blit(v, (k.pos[0] * grid_offset + camera_pos.x,
+                                     k.pos[1] * grid_offset + camera_pos.y))
             self.process_turn(self._auto_advance_turns)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                if event.type == pg.MOUSEMOTION and pg.mouse.get_pressed()[0]:
+                    camera_pos.x += event.rel[0]
+                    camera_pos.y += event.rel[1]
+            
             if self._auto_advance_turns:
                 sleep(turn_delay)
+
+            pg.display.update()
+            self.clock.tick(60)
         self.on_process_finished()
         pg.quit()
 
@@ -68,7 +88,7 @@ class PygameRenderer(MapProcess):
         margin_left: int = 200
 
         # -- Main menu objects --
-        logo_text = self.font.render("Fly-in", True, Colors.WHITE)
+        logo_text = self.font.render("Fly-in", True, Colors.BLACK)
         maps_text = self.font.render("Maps", True, Colors.WHITE)
         quit_text = self.font.render("Quit", True, Colors.WHITE)
         maps_button = Button(maps_text, (margin_left, 350), Colors.YELLOW)
@@ -84,9 +104,9 @@ class PygameRenderer(MapProcess):
         level_button = Button(level_text_list[0], (margin_left, 350),
                               Colors.YELLOW)
         right_button = SmallButton(SmallButton.reposition_arrows(
-            level_button.rect), Colors.WHITE)
+            level_button.rect), Colors.GRAY)
         left_button = SmallButton(SmallButton.reposition_arrows(
-            level_button.rect, True), Colors.WHITE)
+            level_button.rect, True), Colors.GRAY)
         back_text = self.font.render("Back", True, Colors.WHITE)
         back_button = Button(back_text, (margin_left, 460), Colors.YELLOW)
 
@@ -99,7 +119,7 @@ class PygameRenderer(MapProcess):
                     running = False
                     pg.quit()
                     sys.exit()
-            self.screen.fill(Colors.BLACK)
+            self.screen.fill(Colors.WHITE)
             self.screen.blit(logo_text, (margin_left, 150))
             # self.screen.blit(zone_sprite, zone_sprite.get_rect(
             #     center=self.screen.get_rect().center))
