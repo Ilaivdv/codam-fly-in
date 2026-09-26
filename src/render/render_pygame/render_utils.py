@@ -1,6 +1,7 @@
 import pygame as pg
 import math
 
+
 class RenderUtils:
     def __init__(self) -> None:
         self.colors: dict[str, tuple[int, int, int]] = {
@@ -26,8 +27,8 @@ class RenderUtils:
 
     def draw_grid(self, surface: pg.Surface, color: tuple[int, int, int],
                   grid_size: int, camera_pos: pg.math.Vector2) -> None:
-        offset: pg.math.Vector2 = pg.math.Vector2((camera_pos.x % grid_size,
-                                                camera_pos.y % grid_size))
+        offset: pg.math.Vector2 = pg.math.Vector2(
+                (camera_pos.x % grid_size, camera_pos.y % grid_size))
 
         tilesx: int = math.ceil(surface.width / grid_size)
         for x in range(0, tilesx):

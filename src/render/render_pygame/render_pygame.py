@@ -53,6 +53,7 @@ class PygameRenderer(MapProcess):
 
         # while not self._map.is_finished:
         while True:
+
             self.screen.fill(self.palette["bg1"])
             self.utils.draw_grid(self.screen, self.palette["bg2"],
                                  self.grid_size, camera_pos)
@@ -73,7 +74,7 @@ class PygameRenderer(MapProcess):
                 if event.type == pg.MOUSEMOTION and pg.mouse.get_pressed()[0]:
                     camera_pos.x += event.rel[0]
                     camera_pos.y += event.rel[1]
-            
+
             if self._auto_advance_turns:
                 sleep(turn_delay)
 
@@ -196,7 +197,6 @@ class PygameRenderer(MapProcess):
 
     def process_turn(self, auto_advance: bool) -> None:
         self._map.advance_turn()
-
 
     def on_process_finished(self) -> None:
         ...
