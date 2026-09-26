@@ -120,7 +120,7 @@ class PygameRenderer(MapProcess):
                         selected = 0
                         for i in current_dir:
                             level_text_list.append(self.font.render(
-                                i[i.find("/") + 1:], True, Colors.WHITE))
+                                i[i.rfind("/", 0, len(i) - 1) + 1:], True, Colors.WHITE))
 
                         level_button = Button(level_text_list[0],
                                               (margin_left, 350),
