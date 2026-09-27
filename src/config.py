@@ -75,7 +75,7 @@ class Config:
         _ = arg_parser.add_argument(
                 "-n", "--no_auto",
                 help=("Turns off auto advancing turns and waits for input "
-                      "after every turn instead"),
+                      "after every turn instead (only for terminal output)"),
                 action="store_false",
                 required=False)
 
