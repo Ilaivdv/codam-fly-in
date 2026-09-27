@@ -48,9 +48,13 @@ class PygameRenderer(MapProcess):
             except Exception:
                 color = self.utils.colors["gray"]
 
-            zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
+            if zone.color.lower() == "rainbow":
+                zone_sprite = pg.image.load(
+                        "assets/rainbow_zone.svg").convert_alpha()
+            else:
+                zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
+                zone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
-            zone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             zones.append(RenderZone(zone, zone_sprite, color))
 
         level = self.screen.copy()
