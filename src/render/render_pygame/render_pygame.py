@@ -69,10 +69,10 @@ class PygameRenderer(MapProcess):
         drones: list[RenderDrone] = []
         for i in range(self._map.nb_drones):
             drone_sprite = pg.image.load("assets/drone.svg").convert_alpha()
-            drone_sprite = pg.transform.smoothscale(drone_sprite, (80, 80))
-            color = zones[0].color
+            drone_sprite = pg.transform.scale(drone_sprite, (75, 75))
+            color = self.utils.colors["midgray"]
 
-            # drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
+            drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             drone = RenderDrone(i + 1, drone_sprite, color)
             drone.target = pg.Vector2(self._map.start.pos)
             drones.append(drone)
@@ -149,6 +149,7 @@ class PygameRenderer(MapProcess):
                                 self._map.zones[next_turn[1]].pos), False
 
                 wait_time = 0
+                prev_drone: RenderDrone = drones[-1]
                 for drone in drones:
                     drone.is_at_target = False
                     try:
@@ -163,8 +164,12 @@ class PygameRenderer(MapProcess):
                     except KeyError:
                         pass
                     else:
-                        drone.offset_movement = wait_time
-                        wait_time += 30
+                        if drone.pos == prev_drone.pos:
+                            drone.offset_movement = wait_time
+                            wait_time += 30
+                        else:
+                            wait_time = 0
+                        prev_drone = drone
 
                 print(self._logs.turns[-1])
 
