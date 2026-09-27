@@ -1,12 +1,10 @@
 from .render_utils import RenderUtils, RenderZone, RenderDrone
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
-from src.node import Connection, Zone
+from src.node import Connection
 from src.utils import Logs
 from src.map import Map
-from time import sleep
 import pygame as pg
-import random
 import sys
 
 
@@ -42,7 +40,7 @@ class PygameRenderer(MapProcess):
                 100, self.screen.get_rect().centery)
 
         start_text = self.font.render("Start", True, self.palette["text1"])
-        start_button = Button(start_text, (20, 20),
+        status_button = Button(start_text, (20, 20),
                               self.palette["button1"])
 
         start_pressed: bool = False
@@ -81,9 +79,10 @@ class PygameRenderer(MapProcess):
 
         level = self.screen.copy()
         scale: float = 1
+
         drones_turn_finished: int = 0
         current_turn: dict[str, tuple[pg.Vector2, bool]] = {}
-        # while not self._map.is_finished:
+        is_paused: bool = False
         while True:
 
             level.fill(self.palette["bg1"])
@@ -116,8 +115,8 @@ class PygameRenderer(MapProcess):
                         i.target.x * self.grid_size + self.grid_size / 2,
                         i.target.y * self.grid_size + self.grid_size / 2)
 
-                if i.move_to_target(level, target_pos, camera_pos) and \
-                        not i.is_at_target:
+                if i.move_to_target(level, target_pos, camera_pos, is_paused) \
+                        and not i.is_at_target:
                     drones_turn_finished += 1
                     i.is_at_target = True
 
@@ -131,7 +130,7 @@ class PygameRenderer(MapProcess):
                 i.process(level, pos, scale, self)
 
             if start_pressed and drones_turn_finished == self._map.nb_drones \
-                    and not self._map.is_finished:
+                    and not self._map.is_finished and not is_paused:
                 self.process_turn(False)
                 drones_turn_finished = 0
                 next_moves = self._logs.turns[-1].split()
@@ -198,8 +197,25 @@ class PygameRenderer(MapProcess):
                     level = self.screen.copy()
 
             # -- Buttons/UI --
-            if start_button.process(level):
-                start_pressed = True
+            if status_button.process(level):
+                if start_pressed:
+                    is_paused = not is_paused
+                    if is_paused:
+                        resume_text = self.font.render("Resume", True,
+                                                       self.palette["text1"])
+                        status_button = Button(resume_text, (20, 20),
+                                              self.palette["button1"])
+                    else:
+                        pause_text = self.font.render("Pause", True,
+                                                      self.palette["text1"])
+                        status_button = Button(pause_text, (20, 20),
+                                              self.palette["button1"])
+                else:
+                    start_pressed = True
+                    pause_text = self.font.render("Pause", True,
+                                                  self.palette["text1"])
+                    status_button = Button(pause_text, (20, 20),
+                                          self.palette["button1"])
 
             turn_text = self.font.render(f"Turn {len(self._logs.turns)}", True,
                                          self.palette["text2"])

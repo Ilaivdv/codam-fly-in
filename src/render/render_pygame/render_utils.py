@@ -91,13 +91,16 @@ class RenderDrone:
         self.offset_movement: int = 0
 
     def move_to_target(self, surface: pg.Surface, to_pos: pg.Vector2,
-                       offset: pg.Vector2) -> bool:
+                       offset: pg.Vector2, paused: bool = False) -> bool:
         if not self.pos:
             self.pos = to_pos
 
         surface.blit(self.sprite,
                 (self.pos.x - self.rect.centerx + offset.x,
                  self.pos.y - self.rect.centery + offset.y))
+
+        if paused:
+            return False
 
         if self.offset_movement:
             self.offset_movement -= 1
