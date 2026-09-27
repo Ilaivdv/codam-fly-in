@@ -68,11 +68,11 @@ class PygameRenderer(MapProcess):
         # Initialize drone sprites
         drones: list[RenderDrone] = []
         for i in range(self._map.nb_drones):
-            drone_sprite = pg.image.load("assets/car.svg").convert_alpha()
+            drone_sprite = pg.image.load("assets/drone.svg").convert_alpha()
             drone_sprite = pg.transform.smoothscale(drone_sprite, (80, 80))
             color = zones[0].color
 
-            drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
+            # drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             drone = RenderDrone(i + 1, drone_sprite, color)
             drone.target = pg.Vector2(self._map.start.pos)
             drones.append(drone)
