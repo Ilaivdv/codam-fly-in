@@ -96,8 +96,8 @@ class RenderDrone:
             self.pos = to_pos
 
         surface.blit(self.sprite,
-                     (self.pos.x - self.rect.centerx + offset.x,
-                      self.pos.y - self.rect.centery + offset.y))
+                (self.pos.x - self.rect.centerx + offset.x,
+                 self.pos.y - self.rect.centery + offset.y))
 
         if self.offset_movement:
             self.offset_movement -= 1

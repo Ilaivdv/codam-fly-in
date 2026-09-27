@@ -70,10 +70,7 @@ class PygameRenderer(MapProcess):
         for i in range(self._map.nb_drones):
             drone_sprite = pg.image.load("assets/car.svg").convert_alpha()
             drone_sprite = pg.transform.smoothscale(drone_sprite, (80, 80))
-            color = random.choice([
-                self.utils.colors["red"],
-                self.utils.colors["blue"],
-                self.utils.colors["green"]])
+            color = zones[0].color
 
             drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             drone = RenderDrone(i + 1, drone_sprite, color)
@@ -156,12 +153,11 @@ class PygameRenderer(MapProcess):
                     drone.is_at_target = False
                     try:
                         if current_turn[drone.id][1]:
-                            ## TODO CHECK FOR UP DOWN LEFT RIGHT CAUSE IT BROKE
                             drone.target = pg.Vector2(
-                                    drone.target.x +
-                                    current_turn[drone.id][0].x / 2,
-                                    drone.target.y +
-                                    current_turn[drone.id][0].y / 2)
+                                    (current_turn[drone.id][0].x -
+                                     drone.target.x) / 2 + drone.target.x,
+                                    (current_turn[drone.id][0].y -
+                                     drone.target.y) / 2 + drone.target.y)
                         else:
                             drone.target = current_turn[drone.id][0]
                     except KeyError:
@@ -196,11 +192,13 @@ class PygameRenderer(MapProcess):
                     level = pg.transform.scale(level, self.screen.size)
                     level = self.screen.copy()
 
+            # -- Buttons/UI --
             if start_button.process(level):
                 start_pressed = True
 
-            if self._auto_advance_turns:
-                sleep(turn_delay)
+            turn_text = self.font.render(f"Turn {len(self._logs.turns)}", True,
+                                         self.palette["text2"])
+            level.blit(turn_text, (20, 140))
 
             self.screen.blit(pg.transform.smoothscale_by(level, scale))
             pg.display.update()
