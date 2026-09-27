@@ -152,6 +152,7 @@ class PygameRenderer(MapProcess):
                 prev_drone: RenderDrone = drones[-1]
                 for drone in drones:
                     drone.is_at_target = False
+                    drone.speed = 4
                     try:
                         if current_turn[drone.id][1]:
                             drone.target = pg.Vector2(

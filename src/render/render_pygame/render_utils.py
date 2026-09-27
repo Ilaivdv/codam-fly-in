@@ -97,6 +97,9 @@ class RenderDrone:
         if not self.pos:
             self.pos = to_pos
 
+        if self.pos.distance_to(to_pos) > 900:
+            self.speed = 8
+
         surface.blit(self.sprite,
                      (self.pos.x - self.rect.centerx + offset.x,
                       self.pos.y - self.rect.centery + offset.y))
