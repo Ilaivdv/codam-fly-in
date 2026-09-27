@@ -12,6 +12,7 @@ class RenderUtils:
                 "crimson": (220, 20, 60),
                 "red": (255, 0, 0),
                 "orange": (255, 127, 0),
+                "darkbrown": (76, 63, 56),
                 "brown": (210, 105, 30),
                 "gold": (255, 193, 110),
                 "yellow": (251, 200, 105),

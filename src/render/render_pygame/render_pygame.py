@@ -27,8 +27,9 @@ class PygameRenderer(MapProcess):
                 "bg1": self.utils.colors["lightgray"],
                 "bg2": self.utils.colors["midgray"],
                 "text1": self.utils.colors["white"],
-                "text2": self.utils.colors["black"],
+                "text2": self.utils.colors["darkbrown"],
                 "button1": self.utils.colors["yellow"],
+                "button2": self.utils.colors["darkbrown"],
                 "road1": self.utils.colors["white"],
                 }
         self.palette: dict[str, tuple[int, int, int]] = self.light_palette
@@ -131,13 +132,14 @@ class PygameRenderer(MapProcess):
         margin_left: int = 200
 
         # -- Main menu objects --
-        logo_text = self.font.render("Fly-in", True,
+        logo_font = pg.font.SysFont(None, 160)
+        logo_text = logo_font.render("Fly-in", True,
                                      self.palette["text2"])
         maps_text = self.font.render("Maps", True, self.palette["text1"])
         quit_text = self.font.render("Quit", True, self.palette["text1"])
-        maps_button = Button(maps_text, (margin_left, 350),
+        maps_button = Button(maps_text, (margin_left, 450),
                              self.palette["button1"])
-        quit_button = Button(quit_text, (margin_left, 460),
+        quit_button = Button(quit_text, (margin_left, 560),
                              self.palette["button1"])
 
         # -- Map select objects --
@@ -147,14 +149,14 @@ class PygameRenderer(MapProcess):
             level_text_list.append(self.font.render(
                 i[i.find("/") + 1:], True, self.palette["text1"]))
 
-        level_button = Button(level_text_list[0], (margin_left, 350),
+        level_button = Button(level_text_list[0], (margin_left, 450),
                               self.palette["button1"])
         right_button = SmallButton(SmallButton.reposition_arrows(
-            level_button.rect), self.utils.colors["gray"])
+            level_button.rect), self.palette["button1"])
         left_button = SmallButton(SmallButton.reposition_arrows(
-            level_button.rect, True), self.utils.colors["gray"])
+            level_button.rect, True), self.palette["button1"])
         back_text = self.font.render("Back", True, self.palette["text1"])
-        back_button = Button(back_text, (margin_left, 460),
+        back_button = Button(back_text, (margin_left, 560),
                              self.palette["button1"])
 
         running: bool = True
@@ -191,8 +193,8 @@ class PygameRenderer(MapProcess):
                                 self.palette["text1"]))
 
                         level_button = Button(level_text_list[0],
-                                              (margin_left, 350),
-                                              self.utils.colors["yellow"])
+                                              (margin_left, 450),
+                                              self.palette["button1"])
                         right_button.shape = right_button.reposition_arrows(
                                 level_button.rect)
                 if right_button.process(self.screen):
@@ -201,8 +203,8 @@ class PygameRenderer(MapProcess):
                     else:
                         selected = 0
                     level_button = Button(level_text_list[selected],
-                                          (margin_left, 350),
-                                          self.utils.colors["yellow"])
+                                          (margin_left, 450),
+                                          self.palette["button1"])
                     right_button.shape = right_button.reposition_arrows(
                             level_button.rect)
                 if left_button.process(self.screen):
@@ -211,8 +213,8 @@ class PygameRenderer(MapProcess):
                     else:
                         selected = len(current_dir) - 1
                     level_button = Button(level_text_list[selected],
-                                          (margin_left, 350),
-                                          self.utils.colors["yellow"])
+                                          (margin_left, 450),
+                                          self.palette["button1"])
                     right_button.shape = right_button.reposition_arrows(
                             level_button.rect)
                 if back_button.process(self.screen):
@@ -228,8 +230,8 @@ class PygameRenderer(MapProcess):
                             self.palette["text1"]))
 
                     level_button = Button(level_text_list[0],
-                                          (margin_left, 350),
-                                          self.utils.colors["yellow"])
+                                          (margin_left, 450),
+                                          self.palette["button1"])
                     right_button.shape = right_button.reposition_arrows(
                             level_button.rect)
 

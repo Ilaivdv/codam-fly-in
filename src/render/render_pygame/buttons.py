@@ -82,12 +82,12 @@ class SmallButton:
                      surface.topleft[1] + 11),
                     (surface.left - 17,
                      surface.bottom - 10),
-                    (surface.left - 60,
+                    (surface.left - 62,
                      surface.centery)]
         else:
             return [(surface.right + 15,
                      surface.topright[1] + 10),
                     (surface.right + 15,
                      surface.bottom - 10),
-                    (surface.right + 60,
+                    (surface.right + 62,
                      surface.centery)]
