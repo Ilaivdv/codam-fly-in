@@ -83,8 +83,8 @@ class PygameRenderer(MapProcess):
         drones_turn_finished: int = 0
         current_turn: dict[str, tuple[pg.Vector2, bool]] = {}
         is_paused: bool = False
+        is_finished: bool = False
         while True:
-
             level.fill(self.palette["bg1"])
             self.utils.draw_grid(level, self.palette["bg2"],
                                  self.grid_size, camera_pos)
@@ -198,14 +198,17 @@ class PygameRenderer(MapProcess):
 
             # -- Buttons/UI --
             if status_button.process(level):
-                if start_pressed:
+                if is_finished:
+                    pg.quit()
+                    sys.exit()
+                elif start_pressed:
                     is_paused = not is_paused
                     if is_paused:
                         resume_text = self.font.render("Resume", True,
                                                        self.palette["text1"])
                         status_button = Button(resume_text, (20, 20),
                                               self.palette["button1"])
-                    else:
+                    elif not is_paused:
                         pause_text = self.font.render("Pause", True,
                                                       self.palette["text1"])
                         status_button = Button(pause_text, (20, 20),
@@ -217,9 +220,22 @@ class PygameRenderer(MapProcess):
                     status_button = Button(pause_text, (20, 20),
                                           self.palette["button1"])
 
+            if self._map.is_finished and \
+                    drones_turn_finished == self._map.nb_drones and not \
+                    is_finished:
+                quit_text = self.font.render("Quit", True,
+                                              self.palette["text1"])
+                status_button = Button(quit_text, (20, 20),
+                                      self.palette["button1"])
+                is_finished = True
+
             turn_text = self.font.render(f"Turn {len(self._logs.turns)}", True,
                                          self.palette["text2"])
             level.blit(turn_text, (20, 140))
+
+                # if quit_button.process(level):
+                #     pg.quit()
+                #     sys.exit()
 
             self.screen.blit(pg.transform.smoothscale_by(level, scale))
             pg.display.update()
