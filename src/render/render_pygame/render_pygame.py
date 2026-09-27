@@ -183,7 +183,7 @@ class PygameRenderer(MapProcess):
                     camera_pos.y += event.rel[1]
                 if event.type == pg.MOUSEBUTTONDOWN:
                     # Scroll up
-                    if event.button == 4:
+                    if event.button == 4 and scale < 1.3:
                         scale += 0.1
                         if scale == 1.0:
                             level = pg.transform.scale(level, self.screen.size)
