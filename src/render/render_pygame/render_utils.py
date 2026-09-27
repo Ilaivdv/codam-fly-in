@@ -73,3 +73,8 @@ class RenderZone:
         if self.sprite.get_rect(center=(pos * scale)).collidepoint(mouse_pos):
             surface.blit(text,
                          (pos[0], pos[1] + self.sprite.get_rect().bottom / 2))
+
+class RenderDrone:
+    def __init__(self, sprite: pg.Surface, color: tuple[int, int, int]) -> None:
+        self.sprite: pg.Surface = sprite
+        self.color: tuple[int, int, int] = color

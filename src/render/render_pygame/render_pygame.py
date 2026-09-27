@@ -1,4 +1,4 @@
-from .render_utils import RenderUtils, RenderZone
+from .render_utils import RenderUtils, RenderZone, RenderDrone
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
 from src.node import Connection
@@ -40,6 +40,13 @@ class PygameRenderer(MapProcess):
         camera_pos: pg.math.Vector2 = pg.math.Vector2(
                 100, self.screen.get_rect().centery)
 
+        start_text = self.font.render("Start", True, self.palette["text1"])
+        start_button = Button(start_text, (20, 20),
+                              self.palette["button1"])
+
+        start_pressed: bool = False
+
+        # Initialize zone sprites
         zones: list[RenderZone] = []
         for zone in self._map.zones.values():
             color: tuple[int, int, int]
@@ -57,14 +64,20 @@ class PygameRenderer(MapProcess):
             zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
             zones.append(RenderZone(zone, zone_sprite, color))
 
+        # Initialize drone sprites
+        drones: list[RenderDrone] = []
+        for drone in range(self._map.nb_drones):
+            print(drone)
+
+
         level = self.screen.copy()
         scale: float = 1
         # while not self._map.is_finished:
         while True:
 
             level.fill(self.palette["bg1"])
-            # self.utils.draw_grid(level, self.palette["bg2"],
-            #                      self.grid_size, camera_pos)
+            self.utils.draw_grid(level, self.palette["bg2"],
+                                 self.grid_size, camera_pos)
 
             # Draw connections first so its under the zones
             for i in zones:
@@ -86,6 +99,10 @@ class PygameRenderer(MapProcess):
                         pg.draw.aaline(level, self.palette["road1"],
                                        from_pos, to_pos, 32)
 
+            ## TODO Draw cars here
+            for i in range(self._map.nb_drones):
+                ...
+
             for i in zones:
                 pos: pg.Vector2 = pg.Vector2(i.zone.pos[0] * self.grid_size +
                                              self.grid_size
@@ -95,7 +112,8 @@ class PygameRenderer(MapProcess):
                                              / 2 + camera_pos.y)
                 i.process(level, pos, scale, self)
 
-            self.process_turn(self._auto_advance_turns)
+            if start_pressed:
+                self.process_turn(self._auto_advance_turns)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -121,6 +139,9 @@ class PygameRenderer(MapProcess):
                     level = pg.transform.scale(level, self.screen.size)
                     level = self.screen.copy()
 
+            if start_button.process(level):
+                start_pressed = True
+
             if self._auto_advance_turns:
                 sleep(turn_delay)
 
@@ -139,9 +160,9 @@ class PygameRenderer(MapProcess):
         logo_text = logo_font.render("Fly-in", True,
                                      self.palette["text2"])
         maps_text = self.font.render("Maps", True, self.palette["text1"])
-        quit_text = self.font.render("Quit", True, self.palette["text1"])
         maps_button = Button(maps_text, (margin_left, 450),
                              self.palette["button1"])
+        quit_text = self.font.render("Quit", True, self.palette["text1"])
         quit_button = Button(quit_text, (margin_left, 560),
                              self.palette["button1"])
 
