@@ -41,7 +41,7 @@ class PygameRenderer(MapProcess):
 
         start_text = self.font.render("Start", True, self.palette["text1"])
         status_button = Button(start_text, (20, 20),
-                              self.palette["button1"])
+                               self.palette["button1"])
 
         start_pressed: bool = False
 
@@ -90,13 +90,14 @@ class PygameRenderer(MapProcess):
                                  self.grid_size, camera_pos)
 
             # Draw connections first so its under the zones
-            for i in zones:
+            for render in zones:
                 from_pos: pg.Vector2 = pg.Vector2(
-                        i.zone.pos[0] * self.grid_size + self.grid_size
-                        / 2 + camera_pos.x, i.zone.pos[1] * self.grid_size +
+                        render.zone.pos[0] * self.grid_size + self.grid_size
+                        / 2 + camera_pos.x,
+                        render.zone.pos[1] * self.grid_size +
                         self.grid_size / 2 + camera_pos.y)
 
-                for connect in i.zone.get_neighbors():
+                for connect in render.zone.get_neighbors():
                     if type(connect) is Connection and not connect.is_behind:
                         to_pos: pg.Vector2 = pg.Vector2(
                                 connect.to.pos[0] * self.grid_size +
@@ -110,24 +111,24 @@ class PygameRenderer(MapProcess):
                                        from_pos, to_pos, 32)
 
             # Draw drones here
-            for i in drones:
+            for drone in drones:
                 target_pos: pg.Vector2 = pg.Vector2(
-                        i.target.x * self.grid_size + self.grid_size / 2,
-                        i.target.y * self.grid_size + self.grid_size / 2)
+                        drone.target.x * self.grid_size + self.grid_size / 2,
+                        drone.target.y * self.grid_size + self.grid_size / 2)
 
-                if i.move_to_target(level, target_pos, camera_pos, is_paused) \
-                        and not i.is_at_target:
+                if drone.move_to_target(level, target_pos, camera_pos,
+                                        is_paused) and not drone.is_at_target:
                     drones_turn_finished += 1
-                    i.is_at_target = True
+                    drone.is_at_target = True
 
-            for i in zones:
-                pos: pg.Vector2 = pg.Vector2(i.zone.pos[0] * self.grid_size +
-                                             self.grid_size
+            for render in zones:
+                pos: pg.Vector2 = pg.Vector2(render.zone.pos[0] *
+                                             self.grid_size + self.grid_size
                                              / 2 + camera_pos.x,
-                                             i.zone.pos[1] * self.grid_size +
-                                             self.grid_size
+                                             render.zone.pos[1] *
+                                             self.grid_size + self.grid_size
                                              / 2 + camera_pos.y)
-                i.process(level, pos, scale, self)
+                render.process(level, pos, scale, self)
 
             if start_pressed and drones_turn_finished == self._map.nb_drones \
                     and not self._map.is_finished and not is_paused:
@@ -207,35 +208,31 @@ class PygameRenderer(MapProcess):
                         resume_text = self.font.render("Resume", True,
                                                        self.palette["text1"])
                         status_button = Button(resume_text, (20, 20),
-                                              self.palette["button1"])
+                                               self.palette["button1"])
                     elif not is_paused:
                         pause_text = self.font.render("Pause", True,
                                                       self.palette["text1"])
                         status_button = Button(pause_text, (20, 20),
-                                              self.palette["button1"])
+                                               self.palette["button1"])
                 else:
                     start_pressed = True
                     pause_text = self.font.render("Pause", True,
                                                   self.palette["text1"])
                     status_button = Button(pause_text, (20, 20),
-                                          self.palette["button1"])
+                                           self.palette["button1"])
 
             if self._map.is_finished and \
                     drones_turn_finished == self._map.nb_drones and not \
                     is_finished:
                 quit_text = self.font.render("Quit", True,
-                                              self.palette["text1"])
+                                             self.palette["text1"])
                 status_button = Button(quit_text, (20, 20),
-                                      self.palette["button1"])
+                                       self.palette["button1"])
                 is_finished = True
 
             turn_text = self.font.render(f"Turn {len(self._logs.turns)}", True,
                                          self.palette["text2"])
             level.blit(turn_text, (20, 140))
-
-                # if quit_button.process(level):
-                #     pg.quit()
-                #     sys.exit()
 
             self.screen.blit(pg.transform.smoothscale_by(level, scale))
             pg.display.update()

@@ -76,6 +76,7 @@ class RenderZone:
             surface.blit(text,
                          (pos[0], pos[1] + self.sprite.get_rect().bottom / 2))
 
+
 class RenderDrone:
     def __init__(self, id: int, sprite: pg.Surface,
                  color: tuple[int, int, int]) -> None:
@@ -83,12 +84,13 @@ class RenderDrone:
         self.sprite: pg.Surface = sprite
         self.rect: pg.Rect = self.sprite.get_rect()
         self.color: tuple[int, int, int] = color
+        self.speed: int = 4
 
+        self.offset_movement: int = 0
         self.pos: pg.Vector2 = pg.Vector2(0, 0)
         self.target: pg.Vector2 = pg.Vector2(0, 0)
         self.is_connection: bool = False
         self.is_at_target: bool = False
-        self.offset_movement: int = 0
 
     def move_to_target(self, surface: pg.Surface, to_pos: pg.Vector2,
                        offset: pg.Vector2, paused: bool = False) -> bool:
@@ -96,8 +98,8 @@ class RenderDrone:
             self.pos = to_pos
 
         surface.blit(self.sprite,
-                (self.pos.x - self.rect.centerx + offset.x,
-                 self.pos.y - self.rect.centery + offset.y))
+                     (self.pos.x - self.rect.centerx + offset.x,
+                      self.pos.y - self.rect.centery + offset.y))
 
         if paused:
             return False
@@ -106,8 +108,8 @@ class RenderDrone:
             self.offset_movement -= 1
             return False
 
-        self.pos = self.pos.move_towards(to_pos, 3.0)
-        
+        self.pos = self.pos.move_towards(to_pos, self.speed)
+
         if self.pos == to_pos:
             return True
         return False
