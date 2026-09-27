@@ -1,11 +1,12 @@
 from .render_utils import RenderUtils, RenderZone, RenderDrone
 from src.render.map_process import MapProcess
 from .buttons import Button, SmallButton
-from src.node import Connection
+from src.node import Connection, Zone
 from src.utils import Logs
 from src.map import Map
 from time import sleep
 import pygame as pg
+import random
 import sys
 
 
@@ -66,12 +67,25 @@ class PygameRenderer(MapProcess):
 
         # Initialize drone sprites
         drones: list[RenderDrone] = []
-        for drone in range(self._map.nb_drones):
-            print(drone)
+        for i in range(self._map.nb_drones):
+            drone_sprite = pg.image.load("assets/car.svg").convert_alpha()
+            drone_sprite = pg.transform.smoothscale(drone_sprite, (80, 80))
+            color = random.choice([
+                self.utils.colors["red"],
+                self.utils.colors["blue"],
+                self.utils.colors["green"]])
 
+            drone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
+            drone = RenderDrone(i + 1, drone_sprite, color)
+            drone.target = pg.Vector2(self._map.start.pos)
+            drones.append(drone)
+
+        print(f"{len(drones)} drones loaded")
 
         level = self.screen.copy()
         scale: float = 1
+        drones_turn_finished: int = 0
+        current_turn: dict[str, Zone] = {}
         # while not self._map.is_finished:
         while True:
 
@@ -99,9 +113,16 @@ class PygameRenderer(MapProcess):
                         pg.draw.aaline(level, self.palette["road1"],
                                        from_pos, to_pos, 32)
 
-            ## TODO Draw cars here
-            for i in range(self._map.nb_drones):
-                ...
+            # Draw drones here
+            for i in drones:
+                target_pos: pg.Vector2 = pg.Vector2(
+                        i.target.x * self.grid_size + self.grid_size / 2,
+                        i.target.y * self.grid_size + self.grid_size / 2)
+
+                if i.move_to_target(level, target_pos, camera_pos) and \
+                        not i.is_at_target:
+                    drones_turn_finished += 1
+                    i.is_at_target = True
 
             for i in zones:
                 pos: pg.Vector2 = pg.Vector2(i.zone.pos[0] * self.grid_size +
@@ -112,8 +133,28 @@ class PygameRenderer(MapProcess):
                                              / 2 + camera_pos.y)
                 i.process(level, pos, scale, self)
 
-            if start_pressed:
-                self.process_turn(self._auto_advance_turns)
+            if start_pressed and drones_turn_finished == self._map.nb_drones \
+                    and not self._map.is_finished:
+                self.process_turn(False)
+                drones_turn_finished = 0
+                next_moves = self._logs.turns[-1].split()
+                current_turn.clear()
+
+                for move in next_moves:
+                    next_turn = move.split("-", maxsplit=1)
+                    current_turn[next_turn[0]] = self._map.zones[next_turn[1]]
+
+                wait_time = 0
+                for drone in drones:
+                    drone.is_at_target = False
+                    drone.offset_movement = wait_time
+                    wait_time += 45
+                    try:
+                        drone.target = pg.Vector2(current_turn[drone.id].pos)
+                    except KeyError:
+                        pass
+
+                print(self._logs.turns[-1])
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:

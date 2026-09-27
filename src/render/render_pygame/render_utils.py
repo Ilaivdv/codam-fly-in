@@ -53,9 +53,11 @@ class RenderZone:
         self.sprite: pg.Surface = sprite
         self.color: tuple[int, int, int] = color
         self.font: pg.font.Font = pg.font.SysFont(None, 28)
+        self.pos: pg.Vector2 = pg.Vector2(0, 0)
 
     def process(self, surface: pg.Surface, pos: pg.Vector2,
                 scale: float, parent: Any) -> None:
+        self.pos = pos
         mouse_pos = pg.mouse.get_pos()
 
         surface.blit(self.sprite, (pos[0] - self.sprite.get_rect().centerx,
@@ -75,6 +77,31 @@ class RenderZone:
                          (pos[0], pos[1] + self.sprite.get_rect().bottom / 2))
 
 class RenderDrone:
-    def __init__(self, sprite: pg.Surface, color: tuple[int, int, int]) -> None:
+    def __init__(self, id: int, sprite: pg.Surface,
+                 color: tuple[int, int, int]) -> None:
+        self.id: str = f"D{id}"
         self.sprite: pg.Surface = sprite
+        self.rect: pg.Rect = self.sprite.get_rect()
         self.color: tuple[int, int, int] = color
+
+        self.pos: pg.Vector2 = pg.Vector2(0, 0)
+        self.target: pg.Vector2 = pg.Vector2(0, 0)
+        self.is_at_target: bool = False
+        self.offset_movement: int = 0
+
+    def move_to_target(self, surface: pg.Surface, to_pos: pg.Vector2,
+                       offset: pg.Vector2) -> bool:
+        if not self.pos:
+            self.pos = to_pos
+        if self.offset_movement:
+            self.offset_movement -= 1
+            return False
+
+        self.pos = self.pos.move_towards(to_pos, 2.0)
+        surface.blit(self.sprite,
+                     (self.pos.x - self.rect.centerx + offset.x,
+                      self.pos.y - self.rect.centery + offset.y))
+        
+        if self.pos == to_pos:
+            return True
+        return False

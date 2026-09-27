@@ -32,8 +32,8 @@ class Map:
         self.drones: dict[int, Drone] = {}
 
         self.zones: dict[str, Zone] = {}
-        self._start: Zone
-        self._end: Zone
+        self.start: Zone
+        self.end: Zone
 
         self.is_finished: bool = False
         self.logs: Logs = logs
@@ -67,8 +67,8 @@ class Map:
             raise MapError("couldn't get start and/or end zones")
 
         for i in range(1, self.nb_drones + 1):
-            self.drones[i] = Drone(id=i, start_zone=self._start, log=self.logs)
-        self._start.drone_amount = self.nb_drones
+            self.drones[i] = Drone(id=i, start_zone=self.start, log=self.logs)
+        self.start.drone_amount = self.nb_drones
         self.map_distances()
 
     def _init_start_end_zones(self) -> bool:
@@ -82,11 +82,11 @@ class Map:
         for zone in self.zones.values():
             if zone.type is ZoneTypes.START:
                 zone.max_drones = self.nb_drones
-                self._start = zone
+                self.start = zone
             elif zone.type is ZoneTypes.END:
                 zone.max_drones = self.nb_drones
-                self._end = zone
-        return bool(self._start and self._end)
+                self.end = zone
+        return bool(self.start and self.end)
 
     def map_distances(self) -> None:
         """
@@ -101,7 +101,7 @@ class Map:
         """
 
         # Go from end to start saving all routes that reach start_hub
-        routes: list[list[Zone]] = [[self._end]]
+        routes: list[list[Zone]] = [[self.end]]
         valid_routes: list[list[Zone]] = []
         while len(routes):
             for route in routes:
