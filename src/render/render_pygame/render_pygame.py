@@ -50,8 +50,7 @@ class PygameRenderer(MapProcess):
 
             zone_sprite = pg.image.load("assets/zone.svg").convert_alpha()
             zone_sprite = pg.transform.smoothscale(zone_sprite, (100, 100))
-            zone_sprite.fill(color,
-                             special_flags=pg.BLEND_RGBA_MIN)
+            zone_sprite.fill(color, special_flags=pg.BLENDFACTOR_SRC_COLOR)
             zones.append(RenderZone(zone, zone_sprite, color))
 
         level = self.screen.copy()

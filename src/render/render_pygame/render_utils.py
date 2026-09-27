@@ -7,7 +7,7 @@ import math
 class RenderUtils:
     def __init__(self) -> None:
         self.colors: dict[str, tuple[int, int, int]] = {
-                "darkred": (50, 0, 0),
+                "darkred": (80, 0, 0),
                 "maroon": (90, 0, 0),
                 "crimson": (220, 20, 60),
                 "red": (255, 0, 0),
