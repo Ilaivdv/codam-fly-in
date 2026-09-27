@@ -86,6 +86,7 @@ class RenderDrone:
 
         self.pos: pg.Vector2 = pg.Vector2(0, 0)
         self.target: pg.Vector2 = pg.Vector2(0, 0)
+        self.is_connection: bool = False
         self.is_at_target: bool = False
         self.offset_movement: int = 0
 
@@ -93,14 +94,16 @@ class RenderDrone:
                        offset: pg.Vector2) -> bool:
         if not self.pos:
             self.pos = to_pos
+
+        surface.blit(self.sprite,
+                     (self.pos.x - self.rect.centerx + offset.x,
+                      self.pos.y - self.rect.centery + offset.y))
+
         if self.offset_movement:
             self.offset_movement -= 1
             return False
 
-        self.pos = self.pos.move_towards(to_pos, 2.0)
-        surface.blit(self.sprite,
-                     (self.pos.x - self.rect.centerx + offset.x,
-                      self.pos.y - self.rect.centery + offset.y))
+        self.pos = self.pos.move_towards(to_pos, 3.0)
         
         if self.pos == to_pos:
             return True

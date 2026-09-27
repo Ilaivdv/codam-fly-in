@@ -85,7 +85,7 @@ class PygameRenderer(MapProcess):
         level = self.screen.copy()
         scale: float = 1
         drones_turn_finished: int = 0
-        current_turn: dict[str, Zone] = {}
+        current_turn: dict[str, tuple[pg.Vector2, bool]] = {}
         # while not self._map.is_finished:
         while True:
 
@@ -142,17 +142,33 @@ class PygameRenderer(MapProcess):
 
                 for move in next_moves:
                     next_turn = move.split("-", maxsplit=1)
-                    current_turn[next_turn[0]] = self._map.zones[next_turn[1]]
+                    if next_turn[1].startswith("connection-"):
+                        to_zone = self._map.zones[next_turn[1][
+                            next_turn[1].find("-") + 1:]].pos
+
+                        current_turn[next_turn[0]] = pg.Vector2(to_zone), True
+                    else:
+                        current_turn[next_turn[0]] = pg.Vector2(
+                                self._map.zones[next_turn[1]].pos), False
 
                 wait_time = 0
                 for drone in drones:
                     drone.is_at_target = False
-                    drone.offset_movement = wait_time
-                    wait_time += 45
                     try:
-                        drone.target = pg.Vector2(current_turn[drone.id].pos)
+                        if current_turn[drone.id][1]:
+                            ## TODO CHECK FOR UP DOWN LEFT RIGHT CAUSE IT BROKE
+                            drone.target = pg.Vector2(
+                                    drone.target.x +
+                                    current_turn[drone.id][0].x / 2,
+                                    drone.target.y +
+                                    current_turn[drone.id][0].y / 2)
+                        else:
+                            drone.target = current_turn[drone.id][0]
                     except KeyError:
                         pass
+                    else:
+                        drone.offset_movement = wait_time
+                        wait_time += 30
 
                 print(self._logs.turns[-1])
 
@@ -189,8 +205,6 @@ class PygameRenderer(MapProcess):
             self.screen.blit(pg.transform.smoothscale_by(level, scale))
             pg.display.update()
             self.clock.tick(60)
-        self.on_process_finished()
-        pg.quit()
 
     def map_select(self, files: list[str]) -> Map:
 
