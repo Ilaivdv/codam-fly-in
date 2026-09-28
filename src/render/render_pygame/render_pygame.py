@@ -14,8 +14,7 @@ class PygameRenderer(MapProcess):
         pg.init()
         pg.display.set_caption("Fly-in")
         self.resolution: tuple[int, int] = (1920, 1080)
-        self.screen: pg.Surface = pg.display.set_mode(self.resolution,
-                                                      flags=pg.RESIZABLE)
+        self.screen: pg.Surface = pg.display.set_mode(self.resolution)
         self.clock: pg.time.Clock = pg.time.Clock()
         self.font: pg.font.Font = pg.font.SysFont(None, 98)
 
