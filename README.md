@@ -31,8 +31,9 @@ based on the projects restrictions.
 Both a colored terminal output and graphical user interface were implemented for an enhanced user experience.
 ![Terminal](assets/preview/terminal.png)
 Graphic rendering was made using pygame-ce and all assets were made by me using affinity.
+For the pygame rendering, a speed-up option was added by pressing either up or down arrow keys, or J and K for the vim users.
 
-The visualizer was inspired by one of my favorite games Mini Motorways.
+The visualizer was inspired by one of my favorite games Mini Motorways :)
 ![PygameMenu](assets/pygame_menu.png)
 ![Pygame](assets/pygame_render.png)
 
