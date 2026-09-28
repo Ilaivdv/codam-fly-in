@@ -13,7 +13,8 @@ class PygameRenderer(MapProcess):
         super().__init__(logs)
         pg.init()
         pg.display.set_caption("Fly-in")
-        self.screen: pg.Surface = pg.display.set_mode((1920, 1080),
+        self.resolution: tuple[int, int] = (1920, 1080)
+        self.screen: pg.Surface = pg.display.set_mode(self.resolution,
                                                       flags=pg.RESIZABLE)
         self.clock: pg.time.Clock = pg.time.Clock()
         self.font: pg.font.Font = pg.font.SysFont(None, 98)
@@ -77,10 +78,13 @@ class PygameRenderer(MapProcess):
 
         print(f"{len(drones)} drones loaded")
 
-        level = self.screen.copy()
+        level = pg.Surface((self.resolution[0] * 2,
+                            self.resolution[1] * 2))
+
         scale: float = 1
 
         drones_turn_finished: int = 0
+        current_speed: int = 4
         current_turn: dict[str, tuple[pg.Vector2, bool]] = {}
         is_paused: bool = False
         is_finished: bool = False
@@ -116,6 +120,7 @@ class PygameRenderer(MapProcess):
                         drone.target.x * self.grid_size + self.grid_size / 2,
                         drone.target.y * self.grid_size + self.grid_size / 2)
 
+                drone.speed = current_speed
                 if drone.move_to_target(level, target_pos, camera_pos,
                                         is_paused) and not drone.is_at_target:
                     drones_turn_finished += 1
@@ -152,7 +157,7 @@ class PygameRenderer(MapProcess):
                 prev_drone: RenderDrone = drones[-1]
                 for drone in drones:
                     drone.is_at_target = False
-                    drone.speed = 4
+                    drone.speed_multiplier = 1
                     try:
                         if current_turn[drone.id][1]:
                             drone.target = pg.Vector2(
@@ -183,15 +188,19 @@ class PygameRenderer(MapProcess):
                     camera_pos.y += event.rel[1]
                 if event.type == pg.MOUSEBUTTONDOWN:
                     # Scroll up
-                    if event.button == 4 and scale < 1.3:
+                    if event.button == 4 and scale < 1.0:
                         scale += 0.1
-                        if scale == 1.0:
-                            level = pg.transform.scale(level, self.screen.size)
                     # Scroll down
                     if event.button == 5 and scale > 0.6:
                         scale -= 0.1
-                        if scale < 1.0:
-                            level = pg.transform.scale_by(level, 1.2)
+                if event.type == pg.KEYDOWN and not is_paused and not is_finished:
+                    key = pg.key.get_pressed()
+                    if key[pg.K_k] or key[pg.K_UP]:
+                        if current_speed < 12:
+                            current_speed += 1
+                    elif key[pg.K_j] or key[pg.K_DOWN]:
+                        if current_speed > 1:
+                            current_speed -= 1
 
                 if event.type == pg.VIDEORESIZE:
                     scale = 1.0

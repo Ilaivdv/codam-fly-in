@@ -85,6 +85,7 @@ class RenderDrone:
         self.rect: pg.Rect = self.sprite.get_rect()
         self.color: tuple[int, int, int] = color
         self.speed: int = 4
+        self.speed_multiplier: int = 1
 
         self.offset_movement: int = 0
         self.pos: pg.Vector2 = pg.Vector2(0, 0)
@@ -98,7 +99,7 @@ class RenderDrone:
             self.pos = to_pos
 
         if self.pos.distance_to(to_pos) > 900:
-            self.speed = 8
+            self.speed_multiplier = 2
 
         surface.blit(self.sprite,
                      (self.pos.x - self.rect.centerx + offset.x,
@@ -111,7 +112,8 @@ class RenderDrone:
             self.offset_movement -= 1
             return False
 
-        self.pos = self.pos.move_towards(to_pos, self.speed)
+        self.pos = self.pos.move_towards(
+                to_pos, self.speed * self.speed_multiplier)
 
         if self.pos == to_pos:
             return True
