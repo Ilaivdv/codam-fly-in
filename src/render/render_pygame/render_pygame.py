@@ -193,7 +193,8 @@ class PygameRenderer(MapProcess):
                     # Scroll down
                     if event.button == 5 and scale > 0.6:
                         scale -= 0.1
-                if event.type == pg.KEYDOWN and not is_paused and not is_finished:
+                if event.type == pg.KEYDOWN and not is_paused and \
+                        not is_finished:
                     key = pg.key.get_pressed()
                     if key[pg.K_k] or key[pg.K_UP]:
                         if current_speed < 12:
