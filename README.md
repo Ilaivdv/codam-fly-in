@@ -34,8 +34,8 @@ Graphic rendering was made using pygame-ce and all assets were made by me using 
 For the pygame rendering, a speed-up option was added by pressing either up or down arrow keys, or J and K for the vim users.
 
 The visualizer was inspired by one of my favorite games Mini Motorways :)
-![PygameMenu](assets/pygame_menu.png)
-![Pygame](assets/pygame_render.png)
+![PygameMenu](assets/preview/pygame_menu.png)
+![Pygame](assets/preview/pygame_render.png)
 
 
 # Instructions
