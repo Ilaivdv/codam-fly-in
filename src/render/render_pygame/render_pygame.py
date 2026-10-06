@@ -365,4 +365,4 @@ class PygameRenderer(MapProcess):
         self._map.advance_turn()
 
     def on_process_finished(self) -> None:
-        ...
+        pass
