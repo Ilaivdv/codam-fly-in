@@ -5,6 +5,8 @@ An efficient drone routing system that navigates a pack of drones
 through a hub of connected zones while minimizing simulation turns and handling movement
 constraints.
 
+> Per the subjects requirements, this projects code is fully object-oriented.
+
 ## Features
 - Efficient multi-drone coordination
 - Strict capacity and restriction management of both zones and connections:
@@ -66,6 +68,8 @@ uv run -m src -h
 ```
 
 # Resources
+> [!NOTE]
+> **No AI was used in the making of this project**
 - [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm)
 - [regex cheat sheet](https://www.geeksforgeeks.org/python/python-regex-cheat-sheet/)
 - [Pygame Docs](https://www.pygame.org/docs/)
