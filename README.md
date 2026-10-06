@@ -5,7 +5,7 @@ An efficient drone routing system that navigates a pack of drones
 through a hub of connected zones while minimizing simulation turns and handling movement
 constraints.
 
-> Per the subjects requirements, this projects code is fully object-oriented.
+> Per the subjects requirements, this projects code is *fully* object-oriented.
 
 ## Features
 - Efficient multi-drone coordination
